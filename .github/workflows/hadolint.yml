@@ -14,8 +14,8 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "main" ]
-  schedule:
-    - cron: '20 1 * * 1'
+    #  schedule:
+    #    - cron: '20 1 * * 1'
 
 #permissions:
 #  contents: read
@@ -24,10 +24,10 @@ jobs:
   hadolint:
     name: Run hadolint scanning
     runs-on: ubuntu-latest
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+#    permissions:
+#      contents: read # for actions/checkout to fetch code
+#      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+#      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
