@@ -31,8 +31,8 @@ jobs:
             console.log(pr.status);
             console.log(pr);
             // console.log(JSON.stringify(pr));
-#            console.log("pr.assignees", pr.assignees);
-#            console.log("pr.assignees.length:", pr.assignees.length);
+            // console.log("pr.assignees", pr.assignees);
+            // console.log("pr.assignees.length:", pr.assignees.length);
             if (pr.assignees.length === 0) {
               
             }
