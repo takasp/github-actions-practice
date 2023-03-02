@@ -14,9 +14,11 @@ jobs:
         env:
           ASSIGNEES: "${{ github.actor }}"
         uses: actions/github-script@v6
+        if: ${{ toJSON(github.event.pull_request.assignees) == '[]' }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            console.log("process.env.ASSIGNEE: ", process.env.ASSIGNEE);
             console.log('sssss');
             const pr = await github.rest.pulls.get({
               owner: 'takasp',
@@ -24,3 +26,7 @@ jobs:
               pull_number: 4,
             });
             console.log(JSON.stringify(pr));
+            console.log("pr.assignees.length:", pr.assignees.length);
+            if (pr.assignees.length === 0) {
+              
+            }
