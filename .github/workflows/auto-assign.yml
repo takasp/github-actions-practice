@@ -23,4 +23,4 @@ jobs:
               repo: 'github-actions-practice',
               pull_number: 4,
             });
-            console.log(pr);
+            console.log(JSON.stringify(pr));
