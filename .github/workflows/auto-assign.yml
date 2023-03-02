@@ -1,4 +1,7 @@
 # test
+# ref: https://qiita.com/hkusu/items/39eb92dbd4d6db8a14d8
+# ref: https://zenn.dev/snowcait/articles/d6bc5eafd8ab75
+# ref: https://github.com/actions/github-script
 name: Auto assign pull requests
 
 on: push
@@ -14,7 +17,7 @@ jobs:
         env:
           ASSIGNEES: "${{ github.actor }}"
         uses: actions/github-script@v6
-        if: ${{ toJSON(github.event.pull_request.assignees) == '[]' }}
+        if: ${{ toJSON(github.event.pull_request.assignees) != '[]' }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
