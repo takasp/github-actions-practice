@@ -29,10 +29,10 @@ jobs:
               pull_number: 4,
             });
             console.log(pullRequest.url);
-            console.log(pullRequest);
+            // console.log(pullRequest);
             // console.log(JSON.stringify(pr));
             // console.log("pr.assignees", pr.assignees);
-            // console.log("pr.assignees.length:", pr.assignees.length);
+            console.log("pullRequest.assignees.length:", pullRequest.assignees.length);
             if (pullRequest.assignees.length === 0) {
               
             }
