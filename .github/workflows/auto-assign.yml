@@ -19,8 +19,8 @@ jobs:
           script: |
             console.log('sssss');
             const pr = await github.rest.pulls.get({
-              owner,
-              repo,
-              pull_number,
+              'takasp',
+              'github-actions-practice',
+              4,
             });
             console.log(pr);
