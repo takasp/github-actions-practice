@@ -17,6 +17,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            console.log('sssss');
             const pr = await github.rest.pulls.get({
               owner,
               repo,
