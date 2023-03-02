@@ -23,16 +23,16 @@ jobs:
           script: |
             console.log("process.env.ASSIGNEE: ", process.env.ASSIGNEE);
             console.log('sssss');
-            const pr = await github.rest.pulls.get({
+            const { data: pullRequest } = await github.rest.pulls.get({
               owner: 'takasp',
               repo: 'github-actions-practice',
               pull_number: 4,
             });
-            console.log(pr.status);
-            console.log(pr);
+            console.log(pullRequest.url);
+            console.log(pullRequest);
             // console.log(JSON.stringify(pr));
             // console.log("pr.assignees", pr.assignees);
             // console.log("pr.assignees.length:", pr.assignees.length);
-            if (pr.assignees.length === 0) {
+            if (pullRequest.assignees.length === 0) {
               
             }
