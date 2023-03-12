@@ -40,7 +40,7 @@ jobs:
             }
       - name: Read assign-groups.json
         id: json
-        run: echo ::set-output name=content::$(cat assign-groups.json)
+        run: echo ::set-output name=content::$(cat .github/workflows/assign-groups.json)
       - name: Assign Reviewer
         uses: actions/github-script@v6
         with:
