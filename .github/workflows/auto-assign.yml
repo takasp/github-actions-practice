@@ -44,7 +44,7 @@ jobs:
         run: pwd
       - name: Read reviewer JSON file
         id: json
-        run: echo "content=$(cat .github/workflows/reviewer-assign-groups.json)" >> $GITHUB_OUTPUT
+        run: echo "content=$(cat ${{ github.workspace }}/.github/workflows/reviewer-assign-groups.json)" >> $GITHUB_OUTPUT
       - name: Use data in another step
         run: |
           echo "The data is: ${{ steps.json.outputs.content }}"
