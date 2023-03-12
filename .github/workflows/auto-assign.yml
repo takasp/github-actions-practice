@@ -38,18 +38,28 @@ jobs:
             if (pullRequest.assignees.length === 0) {
               
             }
-      - name: cat
-        run: cat .github/workflows/reviewer-assign-groups.json
-      - name: ls
-        run: ls -alt
-      - name: pwd
-        run: pwd
-      - name: Read reviewer JSON file
+      - name: Get reviewer JSON object
         id: json
-        run: echo "content=$(cat ${{ github.workspace }}/.github/workflows/reviewer-assign-groups.json)" >> $GITHUB_OUTPUT
-      - name: Use data in another step
         run: |
-          echo "The data is: ${{ steps.json.outputs.content }}"
+          echo '{
+            "group1": {
+              "count": 1,
+              "members": [
+                "user1",
+                "user2",
+                "user3"
+              ]
+            },
+            "group2": {
+              "count": 2,
+              "members": [
+                "user4",
+                "user5",
+                "user6",
+                "user7"
+              ]
+            }
+          }' > reviewer-assign-groups.json
       - name: Assign Reviewer
         uses: actions/github-script@v6
         with:
