@@ -1,0 +1,19 @@
+{
+  "group1": {
+    "count": 1,
+    "members": [
+      "user1",
+      "user2",
+      "user3"
+    ]
+  },
+  "group2": {
+    "count": 2,
+    "members": [
+      "user4",
+      "user5",
+      "user6",
+      "user7"
+    ]
+  }
+}
