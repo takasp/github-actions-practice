@@ -38,6 +38,8 @@ jobs:
             if (pullRequest.assignees.length === 0) {
               
             }
+      - name: cat
+        run: cat .github/workflows/reviewer-assign-groups.json
       - name: ls
         run: ls -alt
       - name: pwd
