@@ -38,6 +38,8 @@ jobs:
             if (pullRequest.assignees.length === 0) {
               
             }
+      - name: ls
+        run: ls -alt
       - name: Read reviewer JSON file
         id: json
         run: echo "content=$(cat .github/workflows/reviewer-assign-groups.json)" >> $GITHUB_OUTPUT
