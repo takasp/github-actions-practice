@@ -13,6 +13,8 @@ jobs:
     name: Set assignees and reviewers
     runs-on: ubuntu-22.04
     steps:
+      - name: echo github
+        run: echo '${{ toJSON(github.event.pull_request) }}'
       - name: Set assignees
         env:
           ASSIGNEES: "${{ github.actor }}"
@@ -36,3 +38,30 @@ jobs:
             if (pullRequest.assignees.length === 0) {
               
             }
+      - name: Read assign-groups.json
+        id: json
+        run: echo ::set-output name=content::$(cat assign-groups.json)
+      - name: Assign Reviewer
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log(JSON.parse(`${{ steps.json.outputs.content }}`));
+            console.log('sssssss');
+            const reviewersData = JSON.parse(`${{ steps.json.outputs.content }}`);
+            const prNumber = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const reviewers = [];
+            for (const [groupName, groupData] of Object.entries(reviewersData)) {
+              reviewers.push(...groupData.members.slice(0, groupData.count));
+            }
+
+            console.log(`Assigning reviewers ${reviewers.join(', ')} to PR ${prNumber}`);
+            github.pulls.createReviewRequest({
+              owner,
+              repo,
+              pull_number: prNumber,
+              reviewers
+            });
