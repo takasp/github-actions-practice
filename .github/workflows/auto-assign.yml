@@ -38,9 +38,12 @@ jobs:
             if (pullRequest.assignees.length === 0) {
               
             }
-      - name: Read assign-groups.json
+      - name: Read reviewer JSON file
         id: json
-        run: echo ::set-output name=content::$(cat .github/workflows/assign-groups.json)
+        run: echo ::set-output name=content::$(cat .github/workflows/reviewer-assign-groups.json)
+      - name: Use data in another step
+        run: |
+          echo "The data is: ${{ steps.json.outputs.content }}"
       - name: Assign Reviewer
         uses: actions/github-script@v6
         with:
