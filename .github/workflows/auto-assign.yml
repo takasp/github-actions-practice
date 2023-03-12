@@ -46,7 +46,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log(JSON.parse(`${{ steps.json.outputs.content }}`));
+            console.log(`${{ steps.json.outputs.content }}`);
             console.log('sssssss');
             const reviewersData = JSON.parse(`${{ steps.json.outputs.content }}`);
             const prNumber = context.payload.pull_request.number;
