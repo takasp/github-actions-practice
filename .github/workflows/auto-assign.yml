@@ -20,28 +20,14 @@ jobs:
       - name: echo github
         run: echo '${{ toJSON(github) }}'
       - name: Set assignees
-        env:
-          ASSIGNEES: "${{ github.actor }}"
         uses: actions/github-script@v6
         if: ${{ toJSON(github.event.pull_request.assignees) == '[]' }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log("process.env.ASSIGNEE: ", process.env.ASSIGNEE);
-            console.log('sssss');
-            const { data: pullRequest } = await github.rest.pulls.get({
-              owner: 'takasp',
-              repo: 'github-actions-practice',
-              pull_number: 4,
-            });
-            console.log(pullRequest.url);
-            // console.log(pullRequest);
-            // console.log(JSON.stringify(pr));
-            // console.log("pr.assignees", pr.assignees);
-            console.log("pullRequest.assignees.length:", pullRequest.assignees.length);
+            console.log("github.actor: ", github.actor);
+            console.log("context.payload.pull_request: ", context.payload.pull_request);
             console.log("context.payload.pull_request.user.login:", context.payload.pull_request.user.login);
-            if (pullRequest.assignees.length === 0) {
-            }
             await github.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
