@@ -8,6 +8,7 @@ on:
   pull_request:
     types: [opened]
 
+
 jobs:
   assign:
     name: Set assignees and reviewers
