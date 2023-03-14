@@ -23,11 +23,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { number: issue_number, user } = context.payload.pull_request;
+            const { number, user } = context.payload.pull_request;
             await github.rest.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number,
+              issue_number: number,
               assignees: [user.login]
             });
       - name: Assign random reviewers
