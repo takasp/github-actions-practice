@@ -40,14 +40,13 @@ jobs:
             // console.log("pr.assignees", pr.assignees);
             console.log("pullRequest.assignees.length:", pullRequest.assignees.length);
             console.log("context.payload.pull_request.user.login:", context.payload.pull_request.user.login);
-            const { number, user } = context.payload.pull_request;
             if (pullRequest.assignees.length === 0) {
             }
             await github.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: number,
-              assignees: [user.login]
+              issue_number: context.payload.pull_request.number,
+              assignees: [github.actor]
             });
       - name: Assign Reviewer
         uses: actions/github-script@v6
