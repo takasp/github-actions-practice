@@ -1,37 +1,75 @@
+# test
+# ref: https://qiita.com/hkusu/items/39eb92dbd4d6db8a14d8
+# ref: https://zenn.dev/snowcait/articles/d6bc5eafd8ab75
+# ref: https://github.com/actions/github-script
 name: Auto assign pull requests
 
 on:
   pull_request:
-    types: opened
+    types: [opened]
 
 jobs:
   assign:
     name: Set assignees and reviewers
     runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write
     steps:
+      - name: echo github
+        run: echo '${{ toJSON(github.event.pull_request) }}'
+      - name: echo github
+        run: echo '${{ toJSON(github) }}'
       - name: Set assignees
         env:
           ASSIGNEES: "${{ github.actor }}"
-        run: |
-          assignee_count=$(cat ${{ github.event_path }} | jq '.pull_request.assignees | length')
-          if [[ 0 == $assignee_count ]]; then
-            assignees=$(echo "\"${ASSIGNEES// /}\"" | jq 'split(",")')
-            curl -X POST \
-                 -H "Content-Type: application/json" \
-                 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                 -d "{ \"assignees\": $assignees }" \
-                 https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/assignees
-          fi
-      - name: Set reviewers
-        env:
-          REVIEWERS: "hoge, fuga, piyo" # edit here
-        run: |
-          reviewer_count=$(cat ${{ github.event_path }} | jq '.pull_request.requested_reviewers | length')
-          if [[ 0 == $reviewer_count ]]; then
-            reviewers=$(echo "\"${REVIEWERS// /}\"" | jq 'split(",") | .-["${{ github.actor }}"]')
-            curl -X POST \
-                 -H "Content-Type: application/json" \
-                 -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                 -d "{ \"reviewers\": $reviewers }" \
-                 https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers
-          fi
+        uses: actions/github-script@v6
+        if: ${{ toJSON(github.event.pull_request.assignees) != '[]' }}
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log("process.env.ASSIGNEE: ", process.env.ASSIGNEE);
+            console.log('sssss');
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: 'takasp',
+              repo: 'github-actions-practice',
+              pull_number: 4,
+            });
+            console.log(pullRequest.url);
+            // console.log(pullRequest);
+            // console.log(JSON.stringify(pr));
+            // console.log("pr.assignees", pr.assignees);
+            console.log("pullRequest.assignees.length:", pullRequest.assignees.length);
+            console.log("context.payload.pull_request.user.login:", context.payload.pull_request.user.login);
+            if (pullRequest.assignees.length === 0) {
+            }
+            await github.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              assignees: [github.actor]
+            });
+      - name: Assign Reviewer
+        uses: actions/github-script@v6
+        if: ${{ toJSON(github.event.pull_request.requested_reviewers) != '[]' }}
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const groups = {
+              group1: ['takasp', 'takasp', 'takasp'],
+              group2: ['takasp', 'takasp', 'takasp'],
+              group3: ['takasp', 'takasp', 'takasp']
+            };
+
+            const reviewers = {};
+            for (const [group, members] of Object.entries(groups)) {
+              const index = Math.floor(Math.random() * members.length);
+              reviewers[group] = members[index];
+            }
+            console.log("reviewers: ", reviewers);
+
+            await github.pulls.createReviewRequest({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers: Object.values(reviewers)
+            });
