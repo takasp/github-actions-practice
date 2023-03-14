@@ -8,26 +8,21 @@ on:
   pull_request:
     types: [opened]
 
+permissions:
+  pull-requests: write
+  issues: read
+
 jobs:
   assign:
     name: Set assignees and reviewers
     runs-on: ubuntu-22.04
-    permissions:
-      pull-requests: write
     steps:
-      - name: echo github
-        run: echo '${{ toJSON(github.event.pull_request) }}'
-      - name: echo github
-        run: echo '${{ toJSON(github) }}'
       - name: Set assignees
         uses: actions/github-script@v6
         if: ${{ toJSON(github.event.pull_request.assignees) == '[]' }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log("github.actor: ", github.actor);
-            console.log("context.payload.pull_request: ", context.payload.pull_request);
-            console.log("context.payload.pull_request.user.login:", context.payload.pull_request.user.login);
             const { number: issue_number, user } = context.payload.pull_request;
             await github.rest.issues.addAssignees({
               owner: context.repo.owner,
@@ -47,10 +42,14 @@ jobs:
               group3: ['takasp', 'takasp', 'takasp']
             };
 
-            const reviewers = {};
+            const author = context.payload.pull_request.user.login;
+            const reviewers = [];
             for (const [group, members] of Object.entries(groups)) {
-              const index = Math.floor(Math.random() * members.length);
-              reviewers[group] = members[index];
+              const filteredMembers = members.filter(user => user !== author);
+              if (filteredMembers.length > 0) {
+                const randomReviewer = filteredMembers[Math.floor(Math.random() * filteredMembers.length)];
+                reviewers.push(randomReviewer);
+              }
             }
             console.log("reviewers: ", reviewers);
 
@@ -58,5 +57,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
-              reviewers: Object.values(reviewers)
+              reviewers
             });
