@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: echo github
         run: echo '${{ toJSON(github.event.pull_request) }}'
+      - name: echo github
+        run: echo '${{ toJSON(github) }}'
       - name: Set assignees
         env:
           ASSIGNEES: "${{ github.actor }}"
@@ -35,52 +37,36 @@ jobs:
             // console.log(JSON.stringify(pr));
             // console.log("pr.assignees", pr.assignees);
             console.log("pullRequest.assignees.length:", pullRequest.assignees.length);
+            console.log("context.payload.pull_request.user.login:", context.payload.pull_request.user.login);
             if (pullRequest.assignees.length === 0) {
-              
+              await github.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                assignees: [context.payload.pull_request.user.login]
+              });
             }
-      - name: Get reviewer JSON object
-        id: json
-        run: |
-          echo '{
-            "group1": {
-              "count": 1,
-              "members": [
-                "user1",
-                "user2",
-                "user3"
-              ]
-            },
-            "group2": {
-              "count": 2,
-              "members": [
-                "user4",
-                "user5",
-                "user6",
-                "user7"
-              ]
-            }
-          }' > reviewer-assign-groups.json
       - name: Assign Reviewer
         uses: actions/github-script@v6
+        if: ${{ toJSON(github.event.pull_request.requested_reviewers) != '[]' }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log(`${{ steps.json.outputs.content }}`);
-            console.log('sssssss');
-            const reviewersData = JSON.parse(`${{ steps.json.outputs.content }}`);
-            const prNumber = context.payload.pull_request.number;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+            const groups = {
+              group1: ['user1', 'user2', 'user3'],
+              group2: ['user4', 'user5', 'user6'],
+              group3: ['user7', 'user8', 'user9']
+            };
 
-            const reviewers = [];
-            for (const [groupName, groupData] of Object.entries(reviewersData)) {
-              reviewers.push(...groupData.members.slice(0, groupData.count));
+            const reviewers = {};
+            for (const [group, members] of Object.entries(groups)) {
+              const index = Math.floor(Math.random() * members.length);
+              reviewers[group] = members[index];
             }
 
-            console.log(`Assigning reviewers ${reviewers.join(', ')} to PR ${prNumber}`);
-            github.pulls.createReviewRequest({
-              owner,
-              repo,
-              pull_number: prNumber,
-              reviewers
+            await github.pulls.createReviewRequest({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers: Object.values(reviewers)
             });
