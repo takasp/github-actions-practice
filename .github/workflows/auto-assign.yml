@@ -28,11 +28,12 @@ jobs:
             console.log("github.actor: ", github.actor);
             console.log("context.payload.pull_request: ", context.payload.pull_request);
             console.log("context.payload.pull_request.user.login:", context.payload.pull_request.user.login);
-            await github.issues.addAssignees({
+            const { number: issue_number, user } = context.payload.pull_request;
+            await github.rest.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              assignees: [github.actor]
+              issue_number,
+              assignees: [user.login]
             });
       - name: Assign Reviewer
         uses: actions/github-script@v6
@@ -53,7 +54,7 @@ jobs:
             }
             console.log("reviewers: ", reviewers);
 
-            await github.pulls.createReviewRequest({
+            await github.rest.pulls.createReviewRequest({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
