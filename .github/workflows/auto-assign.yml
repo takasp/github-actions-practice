@@ -23,7 +23,7 @@ jobs:
         env:
           ASSIGNEES: "${{ github.actor }}"
         uses: actions/github-script@v6
-        if: ${{ toJSON(github.event.pull_request.assignees) != '[]' }}
+        if: ${{ toJSON(github.event.pull_request.assignees) == '[]' }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -50,7 +50,7 @@ jobs:
             });
       - name: Assign Reviewer
         uses: actions/github-script@v6
-        if: ${{ toJSON(github.event.pull_request.requested_reviewers) != '[]' }}
+        if: ${{ toJSON(github.event.pull_request.requested_reviewers) == '[]' }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
