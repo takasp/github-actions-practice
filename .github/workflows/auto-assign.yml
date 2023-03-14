@@ -15,13 +15,13 @@ permissions:
 jobs:
   assign:
     name: Assign assignees and reviewers
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Assign Pull Request Author as Assignee
         uses: actions/github-script@v6
         if: ${{ toJSON(github.event.pull_request.assignees) == '[]' }}
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { number: issue_number, user } = context.payload.pull_request;
             await github.rest.issues.addAssignees({
@@ -34,7 +34,7 @@ jobs:
         uses: actions/github-script@v6
         if: ${{ toJSON(github.event.pull_request.requested_reviewers) == '[]' }}
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const groups = {
               group1: ['takasp', 'takasp', 'takasp'],
