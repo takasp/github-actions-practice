@@ -4,14 +4,16 @@
 # ref: https://github.com/actions/github-script
 name: Auto assign pull requests
 
-on: push
-  #pull_request:
-  #  types: opened
+on:
+  pull_request:
+    types: [opened]
 
 jobs:
   assign:
     name: Set assignees and reviewers
     runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write
     steps:
       - name: echo github
         run: echo '${{ toJSON(github.event.pull_request) }}'
