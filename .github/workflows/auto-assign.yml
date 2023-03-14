@@ -14,10 +14,10 @@ permissions:
 
 jobs:
   assign:
-    name: Set assignees and reviewers
+    name: Assign assignees and reviewers
     runs-on: ubuntu-22.04
     steps:
-      - name: Set assignees
+      - name: Assign Pull Request Author as Assignee
         uses: actions/github-script@v6
         if: ${{ toJSON(github.event.pull_request.assignees) == '[]' }}
         with:
@@ -30,7 +30,7 @@ jobs:
               issue_number,
               assignees: [user.login]
             });
-      - name: Assign Reviewer
+      - name: Assign random reviewers
         uses: actions/github-script@v6
         if: ${{ toJSON(github.event.pull_request.requested_reviewers) == '[]' }}
         with:
@@ -51,7 +51,6 @@ jobs:
                 reviewers.push(randomReviewer);
               }
             }
-            console.log("reviewers: ", reviewers);
 
             await github.rest.pulls.requestReviewers({
               owner: context.repo.owner,
