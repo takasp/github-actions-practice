@@ -38,14 +38,15 @@ jobs:
             // console.log("pr.assignees", pr.assignees);
             console.log("pullRequest.assignees.length:", pullRequest.assignees.length);
             console.log("context.payload.pull_request.user.login:", context.payload.pull_request.user.login);
+            const { number, user } = context.payload.pull_request;
             if (pullRequest.assignees.length === 0) {
-              await github.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                assignees: [context.payload.pull_request.user.login]
-              });
             }
+            await github.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: number,
+              assignees: [user.login]
+            });
       - name: Assign Reviewer
         uses: actions/github-script@v6
         if: ${{ toJSON(github.event.pull_request.requested_reviewers) != '[]' }}
@@ -53,9 +54,9 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const groups = {
-              group1: ['user1', 'user2', 'user3'],
-              group2: ['user4', 'user5', 'user6'],
-              group3: ['user7', 'user8', 'user9']
+              group1: ['takasp', 'takasp', 'takasp'],
+              group2: ['takasp', 'takasp', 'takasp'],
+              group3: ['takasp', 'takasp', 'takasp']
             };
 
             const reviewers = {};
@@ -63,6 +64,7 @@ jobs:
               const index = Math.floor(Math.random() * members.length);
               reviewers[group] = members[index];
             }
+            console.log("reviewers: ", reviewers);
 
             await github.pulls.createReviewRequest({
               owner: context.repo.owner,
