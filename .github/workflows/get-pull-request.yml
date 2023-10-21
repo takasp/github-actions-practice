@@ -3,7 +3,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  summary:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Get pull requests
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pulls = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              per_page: 10,
+            });
+            const pullRequestData = pulls.data.map((pullRequest) => ({
+              number: pullRequest.number,
+              merged_at: pullRequest.merged_at,
+              repository: pullRequest.head.repo.name,
+              author: pullRequest.user.login,
+              base: pullRequest.base.ref,
+              head: pullRequest.head.ref,
+            }))
+            console.log(JSON.stringify(pullRequestData));
