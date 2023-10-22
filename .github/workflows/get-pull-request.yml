@@ -41,6 +41,7 @@ jobs:
         uses: actions/github-script@v6
         env:
           EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event || steps.push.outputs.event }}
+          URL: ${{ secrets.TEST_URL }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
