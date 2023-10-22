@@ -60,13 +60,6 @@ jobs:
             });
             console.log(JSON.stringify(workflow));
             
-            const workflowRuns = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: workflowId,
-              status: 'completed',
-            });
-            
             if (eventName === 'workflow_dispatch' && inputRunNumbers) {
               const runNumbers = inputRunNumbers.split(',').map(Number);
               const workflow_runs = await Promise.all(runNumbers.map(async runNumber => {
@@ -87,7 +80,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   workflow_id: workflowId,
-                  status: 'completed',
+                  status: 'success',
                   per_page: perPage,
                   page: page
                 });
