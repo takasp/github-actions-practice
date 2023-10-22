@@ -30,7 +30,6 @@ jobs:
             const allPullRequests = [];
             
             console.log(process.env.GITHUB_OUTPUT);
-            exit 1
             console.log(JSON.stringify(github));
             if (github.event_name === 'workflow_dispatch') {
               const perPage = 2;
