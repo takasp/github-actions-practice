@@ -28,11 +28,13 @@ jobs:
               head: pullRequest.head.ref,
             }));
 #            console.log(JSON.stringify(pullRequestData));
-            const response = await Promise.all(pullRequests.map(pr => {
-              github.rest.pulls.listCommits({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-              });
-            }));
+            const response = await Promise.all(
+              pullRequests.map((pr) => {
+                github.rest.pulls.listCommits({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                });
+              }),
+            );
             console.log(JSON.stringify(response));
