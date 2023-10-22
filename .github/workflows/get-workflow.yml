@@ -101,13 +101,13 @@ jobs:
               allWorkflowRuns.push(...[data]);
             }
 
-            const runs = allWorkflowRuns.map(workflowRun => ({
+            const deploymentFrequencyRawList = allWorkflowRuns.map(workflowRun => ({
               number: workflowRun.run_number,
               released_at: workflowRun.updated_at,
               repository: workflowRun.repository.name,
               author: workflowRun.triggering_actor.login,
-            }))
-            console.log(JSON.stringify(runs));
+            })).sort((a, b) => a.number - b.number);
+            console.log(JSON.stringify(deploymentFrequencyRawList));
 
             if (runs.length) {
               const url = process.env.DEPLOYMENT_FREQUENCY_URL;
@@ -116,7 +116,7 @@ jobs:
                   headers: {
                     'Content-Type': 'application/json',
                   },
-                  body: JSON.stringify(runs)
+                  body: JSON.stringify(deploymentFrequencyRawList)
               }).then((response) => {
                 console.log(JSON.stringify(response));
               }).catch((error) => {
