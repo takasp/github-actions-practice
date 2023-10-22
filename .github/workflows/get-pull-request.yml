@@ -25,6 +25,11 @@ jobs:
         id: push
         if: github.event_name == 'push'
         run: echo event='push' >> $GITHUB_OUTPUT
+      - name: echo vars
+        run: |
+          echo {{ steps.merged.outputs.event }}
+          echo {{ steps.workflow_dispatch.outputs.event }}
+          echo {{ steps.push.outputs.event }}
       - name: Get pull requests
         uses: actions/github-script@v6
         env:
@@ -32,11 +37,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const eventName = process.env.EVENT_NAME;
             const allPullRequests = [];
-            
-            console.log('EVENT_NAME:', process.env.EVENT_NAME);
-            console.log(JSON.stringify(github));
-            if (github.event_name === 'workflow_dispatch') {
+
+            if (eventName === 'workflow_dispatch') {
               const perPage = 2;
               let page = 1;
               while (true) {
@@ -55,7 +59,7 @@ jobs:
                 allPullRequests.push(...data);
                 page++;
               }
-            } else if (github.event.pull_request.merged === true) {
+            } else if (eventName === 'merged') {
               const { data } = await github.pulls.get({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
