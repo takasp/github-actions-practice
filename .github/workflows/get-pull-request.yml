@@ -1,6 +1,8 @@
 name: get-pull-request
 on:
   workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 jobs:
   summary:
@@ -17,12 +19,20 @@ jobs:
               state: 'closed',
               per_page: 10,
             });
-            const pullRequestData = pulls.data.map((pullRequest) => ({
+            const pullRequests = pulls.data.map((pullRequest) => ({
               number: pullRequest.number,
               merged_at: pullRequest.merged_at,
               repository: pullRequest.head.repo.name,
               author: pullRequest.user.login,
               base: pullRequest.base.ref,
               head: pullRequest.head.ref,
-            }))
-            console.log(JSON.stringify(pullRequestData));
+            }));
+#            console.log(JSON.stringify(pullRequestData));
+            const response = await Promise.all(pullRequests.map(pr => {
+              github.rest.pulls.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+              });
+            }));
+            console.log(JSON.stringify(response));
