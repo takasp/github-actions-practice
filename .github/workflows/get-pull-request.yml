@@ -53,7 +53,7 @@ jobs:
               const prNumbers = inputPrNumbers.split(',').map(Number);
   
               const { data } = await Promise.all(prNumbers.map(async prNumber => {
-                const response = await github.pulls.get({
+                const response = await github.rest.pulls.get({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   state: 'closed',
@@ -83,7 +83,7 @@ jobs:
                 page++;
               }
             } else if (eventName === 'merged') {
-              const { data } = await github.pulls.get({
+              const { data } = await github.rest.pulls.get({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: context.payload.pull_request.number
