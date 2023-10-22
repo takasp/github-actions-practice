@@ -83,7 +83,6 @@ jobs:
                   pull_number: context.payload.pull_request.number
               });
               allPullRequests.push(...[data]);
-              console.log('merge pull_request.number:', context.payload.pull_request.number);
             }
 
             const leadTimeRawList = [];
