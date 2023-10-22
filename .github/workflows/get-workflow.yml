@@ -33,11 +33,11 @@ jobs:
           echo ${{ steps.workflow_dispatch.outputs.event }}
       - name: Set inputs
         run: |
-          EVENT_NAME: ${{ steps.workflow_run_success.outputs.event || steps.workflow_dispatch.outputs.event }}
           echo "RUN_NUMBERS=${{ github.event.inputs.run_numbers || '' }}" >> $GITHUB_ENV
       - name: Get Workflow Number and Completion Time
         uses: actions/github-script@v6
         env:
+          EVENT_NAME: ${{ steps.workflow_run_success.outputs.event || steps.workflow_dispatch.outputs.event }}
           DEPLOYMENT_FREQUENCY_URL: ${{ secrets.DEPLOYMENT_FREQUENCY_URL }}
         with:
           script: |
