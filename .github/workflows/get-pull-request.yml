@@ -13,7 +13,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pulls = await github.rest.pulls.list({
+            const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'closed',
@@ -27,13 +27,26 @@ jobs:
               base: pullRequest.base.ref,
               head: pullRequest.head.ref,
             }));
-            const response = await Promise.all(
-              pullRequests.map((pr) => {
-                return github.rest.pulls.listCommits({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: pr.number,
-                });
-              }),
-            );
-            console.log(JSON.stringify(response));
+            
+            const firstCommitHashes = [];
+
+            for (const pr of pullRequests) {
+              const { data: commits } = await github.pulls.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+              });
+
+              const sortedCommits = commits.sort((a, b) => (new Date(a.commit.author.date) - new Date(b.commit.author.date)));
+              const firstCommitHash = sortedCommits[0].sha;
+              firstCommitHashes.push({
+                number: pr.number,
+                firstCommitHash,
+                merged_at: pullRequest.merged_at,
+                repository: pullRequest.head.repo.name,
+                author: pullRequest.user.login,
+                base: pullRequest.base.ref,
+                head: pullRequest.head.ref,
+              });
+            }
+            console.log(JSON.stringify(firstCommitHashes));
