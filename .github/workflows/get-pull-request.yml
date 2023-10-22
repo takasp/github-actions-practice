@@ -51,6 +51,7 @@ jobs:
                 const response = await github.pulls.get({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
+                  state: 'closed',
                   pull_number: prNumber
                 });
                 return response.data;
