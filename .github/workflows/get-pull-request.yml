@@ -48,8 +48,9 @@ jobs:
             const inputPrNumbers = process.env.PR_NUMBERS;
             const allPullRequests = [];
             console.log({inputPrNumbers});
+            const prNumbers2 = [1,2,3];
                     
-            const { data } = await Promise.all(prNumbers.map(async prNumber => {
+            const { data } = await Promise.all(prNumbers2.map(async prNumber => {
               const response = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
