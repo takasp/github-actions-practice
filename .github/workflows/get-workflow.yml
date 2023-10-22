@@ -1,10 +1,10 @@
 name: Get Workflow Number and Completion Time
 
 on:
-  workflow_run:
-    workflows: ["Hadolint"]
-    types:
-      - completed
+#  workflow_run:
+#    workflows: ["Hadolint"]
+#    types:
+#      - completed
   push:
     branches: [ "main" ]
 
@@ -18,7 +18,7 @@ jobs:
         with:
           script: |
 
-            const workflows = await github.rest.rest.actions.listRepoWorkflows({
+            const workflows = await github.rest.actions.listRepoWorkflows({
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
