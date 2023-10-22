@@ -1,10 +1,10 @@
 name: Get Workflow Number and Completion Time
 
 on:
-#  workflow_run:
-#    workflows: ["Hadolint"]
-#    types:
-#      - completed
+  workflow_run:
+    workflows: ["Hadolint"]
+    types:
+      - completed
   workflow_dispatch:
     inputs:
       run_numbers:
