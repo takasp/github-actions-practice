@@ -31,6 +31,13 @@ jobs:
               workflow_id: '73424475',
             });
             console.log(JSON.stringify(workflow));
+            
+            const workflowRuns = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: '73424475',
+            });
+            console.log(JSON.stringify(workflowRuns));
 
 #            const completedAt = new Date(runs.jobs[0].completed_at);
 #            console.log(`Workflow completed at: ${completedAt.toISOString()}`);
