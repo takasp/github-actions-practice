@@ -116,19 +116,6 @@ jobs:
               });
             }
             console.log(JSON.stringify(leadTimeRawList));
-            fetch('https://www.google.com/', {
-                method: 'GET'
-            }).then((response) => {
-              if (!response.ok) {
-              throw 'error response';
-            }
-              // テキストの取得.
-              return response.text();
-            }).then((text) => {
-              console.log(text);
-            }).catch((error) => {
-              console.error(error);
-            });
             
             
             if (leadTimeRawList.length) {
@@ -141,5 +128,7 @@ jobs:
                   body: leadTimeRawList
               }).then((response) => {
                 console.log(JSON.stringify(response));
+              }).catch((error) => {
+                console.error(error);
               });
             }
