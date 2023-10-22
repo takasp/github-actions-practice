@@ -27,7 +27,6 @@ jobs:
               base: pullRequest.base.ref,
               head: pullRequest.head.ref,
             }));
-#            console.log(JSON.stringify(pullRequestData));
             const response = await Promise.all(
               pullRequests.map((pr) => {
                 return github.rest.pulls.listCommits({
