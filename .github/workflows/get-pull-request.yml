@@ -23,7 +23,7 @@ jobs:
             const firstCommitHashes = [];
 
             for (const pr of pullRequests) {
-              const { data: commits } = await github.pulls.listCommits({
+              const { data: commits } = await github.rest.pulls.listCommits({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: pr.number,
