@@ -115,11 +115,11 @@ jobs:
                 head: pr.head.ref,
               });
             }
-            const leadTimeRawListSortedByNumber = commits.sort((a, b) => a.number - b.number);
+            const leadTimeRawListSortedByNumber = leadTimeRawList.sort((a, b) => a.number - b.number);
             console.log(JSON.stringify(leadTimeRawListSortedByNumber));
             
             
-            if (leadTimeRawList.length) {
+            if (leadTimeRawListSortedByNumber.length) {
               const url = process.env.LEAD_TIME_URL;
               fetch(url, {
                   method: 'POST',
