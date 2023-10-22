@@ -103,6 +103,7 @@ jobs:
 
             const deploymentFrequencyRawList = allWorkflowRuns.map(workflowRun => ({
               number: workflowRun.run_number,
+              run_id: workflowRun.id,
               released_at: workflowRun.updated_at,
               repository: workflowRun.repository.name,
               author: workflowRun.triggering_actor.login,
