@@ -49,7 +49,7 @@ jobs:
             const allPullRequests = [];
             console.log({inputPrNumbers});
 
-            if (eventName === 'workflow_dispatch' && inputPrNumbers && false) {
+            if (eventName === 'workflow_dispatch' && inputPrNumbers) {
               const prNumbers = inputPrNumbers.split(',').map(Number);
               console.log({prNumbers});
               const data = await Promise.all(prNumbers.map(async prNumber => {
