@@ -29,7 +29,7 @@ jobs:
             }));
             const response = await Promise.all(
               pullRequests.map((pr) => {
-                github.rest.pulls.listCommits({
+                return github.rest.pulls.listCommits({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: pr.number,
