@@ -57,7 +57,7 @@ jobs:
             
               allPullRequests.push(...data);
             } else if (eventName === 'workflow_dispatch') {
-              const perPage = 2;
+              const perPage = 100;
               let page = 1;
               while (true) {
                 const { data } = await github.rest.pulls.list({
