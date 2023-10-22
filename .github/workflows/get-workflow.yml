@@ -46,7 +46,7 @@ jobs:
             const perPage = 2;
             let page = 1;
             while (true) {
-              const { data } = await github.rest.actions.listWorkflowRuns({
+              const { data: { workflow_runs } } = await github.rest.actions.listWorkflowRuns({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 workflow_id: '73424475',
@@ -55,14 +55,14 @@ jobs:
                 page: page
               });
           
-              if (data.length === 0) {
+              if (workflow_runs.length === 0) {
                 break;
               }
           
-              allWorkflowRuns.push(...data);
+              allWorkflowRuns.push(...workflow_runs);
               page++;
             }
-            const runs = allWorkflowRuns.workflow_runs.map(workflowRun => ({
+            const runs = allWorkflowRuns.map(workflowRun => ({
               number: workflowRun.run_number,
               released_at: workflowRun.updated_at,
               repository: workflowRun.repository.name,
