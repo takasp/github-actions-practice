@@ -9,8 +9,6 @@ on:
     branches:
       - main
     types: [ closed ]
-  push:
-    branches: [ "main" ]
 
 jobs:
   summary:
@@ -26,22 +24,17 @@ jobs:
         id: workflow_dispatch
         if: github.event_name == 'workflow_dispatch'
         run: echo event='workflow_dispatch' >> $GITHUB_OUTPUT
-      - name: Get event name push
-        id: push
-        if: github.event_name == 'push'
-        run: echo event='push' >> $GITHUB_OUTPUT
       - name: echo vars
         run: |
           echo ${{ steps.merged.outputs.event }}
           echo ${{ steps.workflow_dispatch.outputs.event }}
-          echo ${{ steps.push.outputs.event }}
       - name: Set inputs
         run: |
           echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '' }}" >> $GITHUB_ENV
       - name: Get pull requests
         uses: actions/github-script@v6
         env:
-          EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event || steps.push.outputs.event }}
+          EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event }}
           LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -49,7 +42,6 @@ jobs:
             const eventName = process.env.EVENT_NAME;
             const inputPrNumbers = process.env.PR_NUMBERS;
             const allPullRequests = [];
-            console.log({inputPrNumbers});
 
             if (eventName === 'workflow_dispatch' && inputPrNumbers) {
               const prNumbers = inputPrNumbers.split(',').map(Number);
@@ -116,9 +108,7 @@ jobs:
               });
             }
             const leadTimeRawListSortedByNumber = leadTimeRawList.sort((a, b) => a.number - b.number);
-            console.log(JSON.stringify(leadTimeRawListSortedByNumber));
-            
-            
+
             if (leadTimeRawListSortedByNumber.length) {
               const url = process.env.LEAD_TIME_URL;
               fetch(url, {
