@@ -34,6 +34,9 @@ jobs:
           echo ${{ steps.merged.outputs.event }}
           echo ${{ steps.workflow_dispatch.outputs.event }}
           echo ${{ steps.push.outputs.event }}
+      - name: Set inputs
+        run: |
+          echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '' }}" >> $GITHUB_ENV
       - name: Get pull requests
         uses: actions/github-script@v6
         env:
@@ -42,9 +45,10 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const eventName = process.env.EVENT_NAME;
+            const inputPrNumbers = process.env.PR_NUMBERS;
             const allPullRequests = [];
 
-            if (eventName === 'workflow_dispatch' && inputs && inputs.pr_numbers) {
+            if (eventName === 'workflow_dispatch' && inputPrNumbers) {
               const prNumbers = inputs.pr_numbers.split(',').map(Number);
   
               const { data } = await Promise.all(prNumbers.map(async prNumber => {
