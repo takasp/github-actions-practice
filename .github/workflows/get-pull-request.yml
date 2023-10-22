@@ -44,7 +44,7 @@ jobs:
             const eventName = process.env.EVENT_NAME;
             const allPullRequests = [];
 
-            if (eventName === 'workflow_dispatch' && inputs.pr_numbers) {
+            if (eventName === 'workflow_dispatch' && inputs && inputs.pr_numbers) {
               const prNumbers = inputs.pr_numbers.split(',').map(Number);
   
               const { data } = await Promise.all(prNumbers.map(async prNumber => {
