@@ -12,6 +12,7 @@ permissions:
   pull-requests: write
   issues: read
 
+
 jobs:
   assign:
     name: Assign assignees and reviewers
