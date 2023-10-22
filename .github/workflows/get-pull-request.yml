@@ -7,21 +7,36 @@ on:
 jobs:
   summary:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Get pull requests
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const perPage = 2; // ページごとのアイテム数
+            let page = 1;
+            const allPullRequests = [];
+
+            while (true) {
+              const { data } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                per_page: perPage,
+                page: page
+              });
             
-            const test = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'closed',
-              per_page: 2,
-              page: 2,
-            });
-            console.log(JSON.stringify(test));
+              if (data.length === 0) {
+                break;
+              }
+            
+              allPullRequests.push(...data);
+              page++;
+              console.log(page);
+            }
+
+            console.log(JSON.stringify(allPullRequests));
             
             const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
