@@ -116,13 +116,15 @@ jobs:
               });
             }
             console.log(JSON.stringify(leadTimeRawList));
-            const url = process.env.LEAD_TIME_URL;
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                }
-                body: leadTimeRawList
-            }).then((response) => {
-              console.log(JSON.stringify(response));
-            });
+            if (leadTimeRawList.length) {
+              const url = process.env.LEAD_TIME_URL;
+              fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  }
+                  body: leadTimeRawList
+              }).then((response) => {
+                console.log(JSON.stringify(response));
+              });
+            }
