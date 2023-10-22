@@ -115,7 +115,7 @@ jobs:
               });
             }
             console.log(JSON.stringify(leadTimeRawList));
-            const mySecret = process.env.TEST_URL;
+            const mySecret = process.env.URL;
             console.log(mySecret);
 #            fetch(url, {
 #                method: 'POST',
