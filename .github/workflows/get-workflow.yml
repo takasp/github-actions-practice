@@ -109,7 +109,7 @@ jobs:
             })).sort((a, b) => a.number - b.number);
             console.log(JSON.stringify(deploymentFrequencyRawList));
 
-            if (runs.length) {
+            if (deploymentFrequencyRawList.length) {
               const url = process.env.DEPLOYMENT_FREQUENCY_URL;
               fetch(url, {
                   method: 'POST',
