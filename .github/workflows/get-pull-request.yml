@@ -50,7 +50,7 @@ jobs:
             console.log({inputPrNumbers});
 
             if (eventName === 'workflow_dispatch' && inputPrNumbers) {
-              const prNumbers = inputs.pr_numbers.split(',').map(Number);
+              const prNumbers = inputPrNumbers.split(',').map(Number);
   
               const { data } = await Promise.all(prNumbers.map(async prNumber => {
                 const response = await github.pulls.get({
