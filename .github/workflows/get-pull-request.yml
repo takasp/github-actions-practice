@@ -17,10 +17,10 @@ jobs:
         if: github.event.pull_request.merged == true
         run: echo event='merged' >> $GITHUB_OUTPUT
       - name: Get event name workflow_dispatch
-        if: github.event_name === 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch'
         run: echo event='workflow_dispatch' >> $GITHUB_OUTPUT
       - name: Get event name push
-        if: github.event_name === 'push'
+        if: github.event_name == 'push'
         run: echo event='push' >> $GITHUB_OUTPUT
       - name: Get pull requests
         uses: actions/github-script@v6
