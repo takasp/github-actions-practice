@@ -51,6 +51,7 @@ jobs:
 
             if (eventName === 'workflow_dispatch' && inputPrNumbers) {
               const prNumbers = inputPrNumbers.split(',').map(Number);
+              console.log({prNumbers});
   
               const { data } = await Promise.all(prNumbers.map(async prNumber => {
                 const response = await github.rest.pulls.get({
@@ -89,6 +90,7 @@ jobs:
                   pull_number: context.payload.pull_request.number
               });
               allPullRequests.push(...data);
+              console.log('merge pull_request.number:', context.payload.pull_request.number);
             }
 
             const leadTimeRawList = [];
