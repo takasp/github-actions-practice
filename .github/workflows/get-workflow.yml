@@ -39,10 +39,10 @@ jobs:
               status: 'completed',
             });
             const runs = workflowRuns.data.workflow_runs.map(workflowRun => ({
-              number: run_number,
-              released_at: updated_at,
-              repository: repository.name,
-              author: triggering_actor.login,
+              number: workflowRun.run_number,
+              released_at: workflowRun.updated_at,
+              repository: workflowRun.repository.name,
+              author: workflowRun.triggering_actor.login,
             }))
             console.log(JSON.stringify(runs));
 
