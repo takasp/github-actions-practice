@@ -1,6 +1,10 @@
 name: get-pull-request
 on:
   workflow_dispatch:
+    inputs:
+      pr_numbers:
+        description: 'Comma-separated list of Pull Request numbers'
+        required: false
   pull_request:
     branches:
       - main
@@ -27,9 +31,9 @@ jobs:
         run: echo event='push' >> $GITHUB_OUTPUT
       - name: echo vars
         run: |
-          echo {{ steps.merged.outputs.event }}
-          echo {{ steps.workflow_dispatch.outputs.event }}
-          echo {{ steps.push.outputs.event }}
+          echo ${{ steps.merged.outputs.event }}
+          echo ${{ steps.workflow_dispatch.outputs.event }}
+          echo ${{ steps.push.outputs.event }}
       - name: Get pull requests
         uses: actions/github-script@v6
         env:
@@ -40,7 +44,20 @@ jobs:
             const eventName = process.env.EVENT_NAME;
             const allPullRequests = [];
 
-            if (eventName === 'workflow_dispatch') {
+            if (eventName === 'workflow_dispatch' && inputs.pr_numbers) {
+              const prNumbers = inputs.pr_numbers.split(',').map(Number);
+  
+              const { data } = await Promise.all(prNumbers.map(async prNumber => {
+                const response = await github.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber
+                });
+                return response.data;
+              }));
+            
+              allPullRequests.push(...data);
+            } else if (eventName === 'workflow_dispatch') {
               const perPage = 2;
               let page = 1;
               while (true) {
