@@ -66,7 +66,7 @@ jobs:
                 const response = await github.rest.actions.getWorkflowRun({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  workflow_id: workflowId,
+                  run_id: runNumber,
                 });
                 return response.data;
               }));
@@ -96,7 +96,7 @@ jobs:
               const { data } = await github.rest.actions.getWorkflowRun({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  workflow_id: workflowId,
+                  run_id: context.payload.workflow_run.id,
               });
               allWorkflowRuns.push(...[data]);
             }
