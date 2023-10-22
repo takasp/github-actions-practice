@@ -19,14 +19,6 @@ jobs:
               state: 'closed',
               per_page: 10,
             });
-            const pullRequests = pulls.data.map((pullRequest) => ({
-              number: pullRequest.number,
-              merged_at: pullRequest.merged_at,
-              repository: pullRequest.head.repo.name,
-              author: pullRequest.user.login,
-              base: pullRequest.base.ref,
-              head: pullRequest.head.ref,
-            }));
             
             const firstCommitHashes = [];
 
