@@ -4,6 +4,7 @@
 # ref: https://github.com/actions/github-script
 name: Auto assign pull requests
 
+
 on:
   pull_request:
     types: [opened]
