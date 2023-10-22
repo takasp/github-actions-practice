@@ -48,15 +48,6 @@ jobs:
             const inputPrNumbers = process.env.PR_NUMBERS;
             const allPullRequests = [];
             console.log({inputPrNumbers});
-            
-            const response = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'closed',
-              pull_number: 1
-            });
-            console.log(JSON.stringify(response));
-            allPullRequests.push(...[response.data]);
 
             if (eventName === 'workflow_dispatch' && inputPrNumbers && false) {
               const prNumbers = inputPrNumbers.split(',').map(Number);
