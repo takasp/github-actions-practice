@@ -1,0 +1,27 @@
+name: Get Workflow Number and Completion Time
+
+on:
+  workflow_run:
+    workflows: ["Hadolint"]
+    types:
+      - completed
+
+jobs:
+  get_workflow_info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Workflow Number and Completion Time
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflow = await github.rest.actions.getWorkflow({ workflow_id: github.run_id });
+            console.log(`Workflow Number: ${workflow.number}`);
+            
+            const runs = await github.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: github.run_id
+            });
+            const completedAt = new Date(runs.jobs[0].completed_at);
+            console.log(`Workflow completed at: ${completedAt.toISOString()}`);
