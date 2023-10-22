@@ -41,7 +41,7 @@ jobs:
         uses: actions/github-script@v6
         env:
           EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event || steps.push.outputs.event }}
-          URL: ${{ secrets.TEST_URL }}
+          TEST_URL: ${{ secrets.TEST_URL }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -115,8 +115,8 @@ jobs:
               });
             }
             console.log(JSON.stringify(leadTimeRawList));
-            const mySecret = process.env.URL;
-            console.log(mySecret);
+            const mySecret = process.env.TEST_URL;
+            console.log({mySecret});
 #            fetch(url, {
 #                method: 'POST',
 #                headers: {
