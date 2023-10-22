@@ -47,6 +47,7 @@ jobs:
             const eventName = process.env.EVENT_NAME;
             const inputPrNumbers = process.env.PR_NUMBERS;
             const allPullRequests = [];
+            console.log({inputPrNumbers});
 
             if (eventName === 'workflow_dispatch' && inputPrNumbers) {
               const prNumbers = inputs.pr_numbers.split(',').map(Number);
