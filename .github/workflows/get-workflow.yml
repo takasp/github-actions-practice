@@ -44,7 +44,7 @@ jobs:
             const eventName = process.env.EVENT_NAME;
             const inputRunNumbers = process.env.RUN_NUMBERS;
             const allWorkflowRuns = [];
-            const workflowId = '73424475',
+            const workflowId = '73424475';
 
             const workflows = await github.rest.actions.listRepoWorkflows({
               owner: context.repo.owner,
