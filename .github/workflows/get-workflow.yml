@@ -28,7 +28,7 @@ jobs:
             const workflow = await github.rest.actions.getWorkflow({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'W_kwDOI68NHs4EYF5b',
+              workflow_id: '73424475',
             });
             console.log(JSON.stringify(workflow));
 
