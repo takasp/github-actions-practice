@@ -20,7 +20,7 @@ jobs:
           script: |
             const allPullRequests = [];
 
-            console.log(github.event);
+            console.log(JSON.stringify(github));
             if (github.event_name === 'workflow_dispatch') {
               const perPage = 2;
               let page = 1;
