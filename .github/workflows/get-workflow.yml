@@ -5,6 +5,8 @@ on:
     workflows: ["Hadolint"]
     types:
       - completed
+  push:
+    branches: [ "main" ]
 
 jobs:
   get_workflow_info:
@@ -15,13 +17,22 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const workflow = await github.rest.actions.getWorkflow({ workflow_id: github.run_id });
-            console.log(`Workflow Number: ${workflow.number}`);
-            
-            const runs = await github.actions.listJobsForWorkflowRun({
+
+            const workflows = await github.rest.rest.actions.listRepoWorkflows({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              run_id: github.run_id
             });
-            const completedAt = new Date(runs.jobs[0].completed_at);
-            console.log(`Workflow completed at: ${completedAt.toISOString()}`);
+            
+            console.log(JSON.stringify(workflows));
+#            const completedAt = new Date(runs.jobs[0].completed_at);
+#            console.log(`Workflow completed at: ${completedAt.toISOString()}`);
+
+
+#            const workflow = await github.rest.actions.getWorkflow({ workflow_id: github.run_id });
+#            console.log(`Workflow Number: ${workflow.number}`);
+#
+#            const runs = await github.actions.listJobsForWorkflowRun({
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              run_id: github.run_id
+#            });
