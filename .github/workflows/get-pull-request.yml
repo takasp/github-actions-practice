@@ -53,7 +53,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'closed',
-              pull_number: 3
+              pull_number: 1
             });
             console.log(JSON.stringify(response));
             allPullRequests.push(...[response.data]);
