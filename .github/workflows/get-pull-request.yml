@@ -115,7 +115,7 @@ jobs:
                 head: pr.head.ref,
               });
             }
-            const leadTimeRawListSortedByNumber = commits.sort((a, b) => a.number - b.number;
+            const leadTimeRawListSortedByNumber = commits.sort((a, b) => a.number - b.number);
             console.log(JSON.stringify(leadTimeRawListSortedByNumber));
             
             
