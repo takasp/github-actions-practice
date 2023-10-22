@@ -16,6 +16,7 @@ jobs:
   summary:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: GAS_URL
     steps:
       - name: Get event name merged
         id: merged
