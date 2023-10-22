@@ -48,11 +48,18 @@ jobs:
             const inputPrNumbers = process.env.PR_NUMBERS;
             const allPullRequests = [];
             console.log({inputPrNumbers});
+            
+            const response = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              pull_number: 3
+            });
+            console.log(JSON.stringify(response));
 
             if (eventName === 'workflow_dispatch' && inputPrNumbers && false) {
               const prNumbers = inputPrNumbers.split(',').map(Number);
               console.log({prNumbers});
-  
               const data = await Promise.all(prNumbers.map(async prNumber => {
                 const response = await github.rest.pulls.get({
                   owner: context.repo.owner,
@@ -60,7 +67,6 @@ jobs:
                   state: 'closed',
                   pull_number: prNumber
                 });
-                console.log(JSON.stringify(response));
                 return response.data;
               }));
             
