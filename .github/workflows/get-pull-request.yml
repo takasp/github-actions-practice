@@ -14,22 +14,27 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Get event name merged
+        id: merged
         if: github.event.pull_request.merged == true
         run: echo event='merged' >> $GITHUB_OUTPUT
       - name: Get event name workflow_dispatch
+        id: workflow_dispatch
         if: github.event_name == 'workflow_dispatch'
         run: echo event='workflow_dispatch' >> $GITHUB_OUTPUT
       - name: Get event name push
+        id: push
         if: github.event_name == 'push'
         run: echo event='push' >> $GITHUB_OUTPUT
       - name: Get pull requests
         uses: actions/github-script@v6
+        env:
+          EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event || steps.push.outputs.event }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const allPullRequests = [];
             
-            console.log('$GITHUB_OUTPUT:', process.env.GITHUB_OUTPUT);
+            console.log('EVENT_NAME:', process.env.EVENT_NAME);
             console.log(JSON.stringify(github));
             if (github.event_name === 'workflow_dispatch') {
               const perPage = 2;
