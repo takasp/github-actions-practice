@@ -27,13 +27,14 @@ jobs:
                 page: page
               });
             
+              console.log(data.length);
               if (data.length === 0) {
                 break;
               }
             
               allPullRequests.push(...data);
-              page++;
               console.log(page);
+              page++;
             }
 
             console.log(JSON.stringify(allPullRequests));
