@@ -77,7 +77,7 @@ jobs:
                 page++;
               }
             } else if (eventName === 'merged') {
-              const { data } = await github.rest.pulls.get({
+              const data = await github.rest.pulls.get({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: context.payload.pull_request.number
