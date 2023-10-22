@@ -34,11 +34,11 @@ jobs:
               firstCommitHashes.push({
                 number: pr.number,
                 firstCommitHash,
-                merged_at: pullRequest.merged_at,
-                repository: pullRequest.head.repo.name,
-                author: pullRequest.user.login,
-                base: pullRequest.base.ref,
-                head: pullRequest.head.ref,
+                merged_at: pr.merged_at,
+                repository: pr.head.repo.name,
+                author: pr.user.login,
+                base: pr.base.ref,
+                head: pr.head.ref,
               });
             }
             console.log(JSON.stringify(firstCommitHashes));
