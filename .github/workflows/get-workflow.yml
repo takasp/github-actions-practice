@@ -36,8 +36,15 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: '73424475',
+              status: 'completed',
             });
-            console.log(JSON.stringify(workflowRuns));
+            const runs = workflowRuns.data.workflow_runs.map(workflowRun => ({
+              number: run_number,
+              released_at: updated_at,
+              repository: repository.name,
+              author: triggering_actor.login,
+            }))
+            console.log(JSON.stringify(runs));
 
 #            const completedAt = new Date(runs.jobs[0].completed_at);
 #            console.log(`Workflow completed at: ${completedAt.toISOString()}`);
