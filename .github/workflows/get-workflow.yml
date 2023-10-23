@@ -39,6 +39,7 @@ jobs:
         env:
           EVENT_NAME: ${{ steps.workflow_run_success.outputs.event || steps.workflow_dispatch.outputs.event }}
           DEPLOYMENT_FREQUENCY_URL: ${{ secrets.DEPLOYMENT_FREQUENCY_URL }}
+          DEPLOYMENT_FREQUENCY_URL2: ${{ secrets.DEPLOYMENT_FREQUENCY_URL2 }}
         with:
           script: |
             const eventName = process.env.EVENT_NAME;
@@ -108,41 +109,47 @@ jobs:
               repository: workflowRun.repository.name,
               author: workflowRun.triggering_actor.login,
             })).sort((a, b) => a.number - b.number);
-            console.log(JSON.stringify(deploymentFrequencyRawList));
 
             if (deploymentFrequencyRawList.length) {
-              const url = process.env.DEPLOYMENT_FREQUENCY_URL;
-              fetch(url, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(deploymentFrequencyRawList)
-              }).then((response) => {
-                console.log(JSON.stringify(response));
-              }).catch((error) => {
-                console.error(error);
-              });
+              // const url = process.env.DEPLOYMENT_FREQUENCY_URL;
+              // fetch(url, {
+              //     method: 'POST',
+              //     headers: {
+              //       'Content-Type': 'application/json',
+              //     },
+              //     body: JSON.stringify(deploymentFrequencyRawList)
+              // }).then((response) => {
+              //   console.log(JSON.stringify(response));
+              // }).catch((error) => {
+              //   console.error(error);
+              // });
+              const url2 = process.env.DEPLOYMENT_FREQUENCY_URL2;
               for (const deploymentFrequencyRaw of deploymentFrequencyRawList) {
+                const formData = new URLSearchParams();
+                formData.append('entry.1465423696', deploymentFrequencyRaw.number);
+                formData.append('entry.1787920898', deploymentFrequencyRaw.run_id);
+                formData.append('entry.1253201792', deploymentFrequencyRaw.released_at);
+                formData.append('entry.151897309', deploymentFrequencyRaw.repository);
+                formData.append('entry.1926035146', deploymentFrequencyRaw.author);
                 try {
-                const response = await fetch(serverEndpoint, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(obj),
-              });
+                  const response = await fetch(url2, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: JSON.stringify(obj),
+                  });
                 
-                if (response.ok) {
-                const result = await response.json();
-                console.log(`Successfully posted data: ${JSON.stringify(result)}`);
-              } else {
-                console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+                  if (response.ok) {
+                    const result = await response.json();
+                    console.log(`Successfully posted data: ${JSON.stringify(result)}`);
+                  } else {
+                    console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                }
               }
-              } catch (error) {
-                console.error('Error:', error);
-              }
-            }
             }
 
 
