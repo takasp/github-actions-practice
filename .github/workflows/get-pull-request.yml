@@ -53,10 +53,11 @@ jobs:
                   state: 'closed',
                   pull_number: prNumber
                 });
-                return response.data.filter(pr => pr.merged);
+                return response.data;
               }));
+              const mergedData = data.filter(pr => pr.merged);
             
-              allPullRequests.push(...data);
+              allPullRequests.push(...mergedData);
             } else if (eventName === 'workflow_dispatch') {
               const perPage = 100;
               let page = 1;
