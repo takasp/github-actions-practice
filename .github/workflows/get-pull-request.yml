@@ -53,7 +53,7 @@ jobs:
                   state: 'closed',
                   pull_number: prNumber
                 });
-                return response.data;
+                return response.data.filter(pr => pr.merged);
               }));
             
               allPullRequests.push(...data);
@@ -68,12 +68,13 @@ jobs:
                   per_page: perPage,
                   page: page
                 });
+                const mergedData = data.filter(pr => pr.merged);
   
-                if (data.length === 0) {
+                if (mergedData.length === 0) {
                   break;
                 }
   
-                allPullRequests.push(...data);
+                allPullRequests.push(...mergedData);
                 page++;
               }
             } else if (eventName === 'merged') {
