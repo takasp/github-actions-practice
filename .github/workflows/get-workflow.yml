@@ -137,7 +137,7 @@ jobs:
                     headers: {
                       'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: JSON.stringify(obj),
+                    body: formData,
                   });
                 
                   if (response.ok) {
