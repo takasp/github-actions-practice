@@ -123,6 +123,26 @@ jobs:
               }).catch((error) => {
                 console.error(error);
               });
+              for (const deploymentFrequencyRaw of deploymentFrequencyRawList) {
+                try {
+                const response = await fetch(serverEndpoint, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(obj),
+              });
+                
+                if (response.ok) {
+                const result = await response.json();
+                console.log(`Successfully posted data: ${JSON.stringify(result)}`);
+              } else {
+                console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+              }
+              } catch (error) {
+                console.error('Error:', error);
+              }
+            }
             }
 
 

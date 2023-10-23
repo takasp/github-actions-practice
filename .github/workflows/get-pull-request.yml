@@ -36,6 +36,7 @@ jobs:
         env:
           EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event }}
           LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
+          LEAD_TIME_URL2: ${{ secrets.LEAD_TIME_URL2 }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -108,16 +109,45 @@ jobs:
             const leadTimeRawListSortedByNumber = leadTimeRawList.sort((a, b) => a.number - b.number);
 
             if (leadTimeRawListSortedByNumber.length) {
-              const url = process.env.LEAD_TIME_URL;
-              fetch(url, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(leadTimeRawListSortedByNumber)
-              }).then((response) => {
-                console.log(JSON.stringify(response));
-              }).catch((error) => {
-                console.error(error);
-              });
+              // const url = process.env.LEAD_TIME_URL;
+              // fetch(url, {
+              //     method: 'POST',
+              //     headers: {
+              //       'Content-Type': 'application/json',
+              //     },
+              //     body: JSON.stringify(leadTimeRawListSortedByNumber)
+              // }).then((response) => {
+              //   console.log(JSON.stringify(response));
+              // }).catch((error) => {
+              //   console.error(error);
+              // });
+              const url2 = process.env.LEAD_TIME_URL2;
+              for (const leadTimeRaw of leadTimeRawListSortedByNumber) {
+                const formData = new URLSearchParams();
+                formData.append('entry.1737429438', leadTimeRaw.number);
+                formData.append('entry.696990060', leadTimeRaw.first_committed);
+                formData.append('entry.883568870', leadTimeRaw.merged_at);
+                formData.append('entry.1770012755', leadTimeRaw.repository);
+                formData.append('entry.1888619409', leadTimeRaw.author);
+                formData.append('entry.864339788', leadTimeRaw.base);
+                formData.append('entry.1775356616', leadTimeRaw.head);
+                try {
+                  const response = await fetch(url2, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData,
+                  });
+                
+                  if (response.ok) {
+                    const result = await response.json();
+                    console.log(`Successfully posted data: ${JSON.stringify(result)}`);
+                  } else {
+                    console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                }
+              }
             }
