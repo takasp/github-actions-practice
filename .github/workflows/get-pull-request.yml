@@ -71,7 +71,9 @@ jobs:
                   per_page: perPage,
                   page: page
                 });
+                console.log(JSON.stringify(data));
                 const mergedData = data.filter(pr => pr.merged);
+                console.log(JSON.stringify(mergedData));
   
                 if (mergedData.length === 0) {
                   break;
