@@ -140,10 +140,7 @@ jobs:
                     body: formData,
                   });
                 
-                  if (response.ok) {
-                    const result = await response.json();
-                    console.log(`Successfully posted data: ${JSON.stringify(result)}`);
-                  } else {
+                  if (!response.ok) {
                     console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
                   }
                 } catch (error) {
