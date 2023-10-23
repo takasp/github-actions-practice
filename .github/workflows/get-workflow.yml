@@ -111,18 +111,6 @@ jobs:
             })).sort((a, b) => a.number - b.number);
 
             if (deploymentFrequencyRawList.length) {
-              // const url = process.env.DEPLOYMENT_FREQUENCY_URL;
-              // fetch(url, {
-              //     method: 'POST',
-              //     headers: {
-              //       'Content-Type': 'application/json',
-              //     },
-              //     body: JSON.stringify(deploymentFrequencyRawList)
-              // }).then((response) => {
-              //   console.log(JSON.stringify(response));
-              // }).catch((error) => {
-              //   console.error(error);
-              // });
               const url2 = process.env.DEPLOYMENT_FREQUENCY_URL2;
               for (const deploymentFrequencyRaw of deploymentFrequencyRawList) {
                 const formData = new URLSearchParams();
@@ -148,17 +136,3 @@ jobs:
                 }
               }
             }
-
-
-#            const completedAt = new Date(runs.jobs[0].completed_at);
-#            console.log(`Workflow completed at: ${completedAt.toISOString()}`);
-
-
-#            const workflow = await github.rest.actions.getWorkflow({ workflow_id: github.run_id });
-#            console.log(`Workflow Number: ${workflow.number}`);
-#
-#            const runs = await github.actions.listJobsForWorkflowRun({
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              run_id: github.run_id
-#            });
