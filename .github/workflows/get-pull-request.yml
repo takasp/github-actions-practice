@@ -61,6 +61,8 @@ jobs:
             } else if (eventName === 'workflow_dispatch') {
               const perPage = 100;
               let page = 1;
+              console.log({eventName});
+              console.log({perPage});
               while (true) {
                 const { data } = await github.rest.pulls.list({
                   owner: context.repo.owner,
