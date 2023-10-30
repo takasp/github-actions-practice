@@ -18,9 +18,6 @@ jobs:
     timeout-minutes: 10
     environment: GAS_URL
     steps:
-      - name: echo BRANCH_NAME
-        run: |
-          echo ${{ github.event.pull_request }}
       - name: Get event name merged
         id: merged
         if: github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'TEST')
@@ -92,9 +89,7 @@ jobs:
               });
               allPullRequests.push(...[data]);
             }
-            console.log("allPullRequests:", JSON.stringify(allPullRequests));
             TESTBranchPullRequests = allPullRequests.filter(pr => /.*TEST.*/.test(pr.head.ref));
-            console.log("TESTBranchPullRequests:", JSON.stringify(TESTBranchPullRequests));
 
             const leadTimeRawList = [];
 
