@@ -19,10 +19,10 @@ jobs:
     steps:
       - name: echo BRANCH_NAME
         run: |
-          echo ${{ env.BRANCH_NAME }}
+          echo ${{ github.event.pull_request }}
       - name: Get event name merged
         id: merged
-        if: github.event.pull_request.merged == true && contains(env.BRANCH_NAME, 'TEST')
+        if: github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'TEST')
         run: echo event='merged' >> $GITHUB_OUTPUT
       - name: Get event name workflow_dispatch
         id: workflow_dispatch
@@ -37,7 +37,7 @@ jobs:
           echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '' }}" >> $GITHUB_ENV
       - name: Get pull requests
         uses: actions/github-script@v6
-        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true && contains(env.BRANCH_NAME, 'TEST'))
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'TEST'))
         env:
           EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event }}
           LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
