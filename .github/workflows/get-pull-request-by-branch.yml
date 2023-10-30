@@ -18,6 +18,9 @@ jobs:
     timeout-minutes: 10
     environment: GAS_URL
     steps:
+      - name: echo BRANCH_NAME
+        run: |
+          echo ${{ env.BRANCH_NAME }}
       - name: Get event name merged
         id: merged
         if: github.event.pull_request.merged == true && contains(env.BRANCH_NAME, 'TEST')
