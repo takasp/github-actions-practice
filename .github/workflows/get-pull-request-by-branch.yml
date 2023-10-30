@@ -1,4 +1,4 @@
-name: get-pull-request
+name: get-pull-request-by-branch
 on:
   workflow_dispatch:
     inputs:
