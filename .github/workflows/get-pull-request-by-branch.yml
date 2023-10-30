@@ -92,7 +92,9 @@ jobs:
               });
               allPullRequests.push(...[data]);
             }
+            console.log("allPullRequests:", JSON.stringify(allPullRequests));
             TESTBranchPullRequests = allPullRequests.filter(pr => /.*TEST.*/.test(pr.head.ref));
+            console.log("TESTBranchPullRequests:", JSON.stringify(TESTBranchPullRequests));
 
             const leadTimeRawList = [];
 
