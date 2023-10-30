@@ -10,6 +10,7 @@ on:
       - main
     types: [ closed ]
 
+
 # TEST大文字だけを含むブランチを対象にする
 jobs:
   summary:
