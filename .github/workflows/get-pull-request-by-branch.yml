@@ -1,0 +1,143 @@
+name: get-pull-request
+on:
+  workflow_dispatch:
+    inputs:
+      pr_numbers:
+        description: 'Comma-separated list of Pull Request numbers'
+        required: false
+  pull_request:
+    branches:
+      - main
+    types: [ closed ]
+
+# TEST大文字だけを含むブランチを対象にする
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: GAS_URL
+    steps:
+      - name: Get event name merged
+        id: merged
+        if: github.event.pull_request.merged == true && contains(env.BRANCH_NAME, 'TEST')
+        run: echo event='merged' >> $GITHUB_OUTPUT
+      - name: Get event name workflow_dispatch
+        id: workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: echo event='workflow_dispatch' >> $GITHUB_OUTPUT
+      - name: echo vars
+        run: |
+          echo ${{ steps.merged.outputs.event }}
+          echo ${{ steps.workflow_dispatch.outputs.event }}
+      - name: Set inputs
+        run: |
+          echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '' }}" >> $GITHUB_ENV
+      - name: Get pull requests
+        uses: actions/github-script@v6
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true && contains(env.BRANCH_NAME, 'TEST'))
+        env:
+          EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event }}
+          LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
+          LEAD_TIME_URL2: ${{ secrets.LEAD_TIME_URL2 }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const eventName = process.env.EVENT_NAME;
+            const inputPrNumbers = process.env.PR_NUMBERS;
+            const allPullRequests = [];
+
+            if (eventName === 'workflow_dispatch' && inputPrNumbers) {
+              const prNumbers = inputPrNumbers.split(',').map(Number);
+              const data = await Promise.all(prNumbers.map(async prNumber => {
+                const response = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'closed',
+                  pull_number: prNumber
+                });
+                return response.data;
+              }));
+              const mergedData = data.filter(pr => pr.merged_at !== null);
+            
+              allPullRequests.push(...mergedData);
+            } else if (eventName === 'workflow_dispatch') {
+              const perPage = 100;
+              let page = 1;
+              while (true) {
+                const { data } = await github.rest.pulls.list({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'closed',
+                  per_page: perPage,
+                  page: page
+                });
+                const mergedData = data.filter(pr => pr.merged_at !== null);
+  
+                if (mergedData.length === 0) {
+                  break;
+                }
+  
+                allPullRequests.push(...mergedData);
+                page++;
+              }
+            } else if (eventName === 'merged') {
+              const { data } = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: context.payload.pull_request.number
+              });
+              allPullRequests.push(...[data]);
+            }
+            TESTBranchPullRequests = allPullRequests.filter(pr => /.*TEST.*/.test(pr.head.ref));
+
+            const leadTimeRawList = [];
+
+            for (const pr of TESTBranchPullRequests) {
+              const { data: commits } = await github.rest.pulls.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+              });
+
+              const sortedCommits = commits.sort((a, b) => (new Date(a.commit.author.date) - new Date(b.commit.author.date)));
+              const firstCommitted = sortedCommits[0].commit.author.date;
+              leadTimeRawList.push({
+                number: pr.number,
+                first_committed: firstCommitted,
+                merged_at: pr.merged_at,
+                repository: pr.head.repo.name,
+                author: pr.user.login,
+                base: pr.base.ref,
+                head: pr.head.ref,
+              });
+            }
+            const leadTimeRawListSortedByNumber = leadTimeRawList.sort((a, b) => a.number - b.number);
+
+            if (leadTimeRawListSortedByNumber.length) {
+              const url2 = process.env.LEAD_TIME_URL2;
+              for (const leadTimeRaw of leadTimeRawListSortedByNumber) {
+                const formData = new URLSearchParams();
+                formData.append('entry.1737429438', leadTimeRaw.number);
+                formData.append('entry.696990060', leadTimeRaw.first_committed);
+                formData.append('entry.883568870', leadTimeRaw.merged_at);
+                formData.append('entry.1770012755', leadTimeRaw.repository);
+                formData.append('entry.1888619409', leadTimeRaw.author);
+                formData.append('entry.864339788', leadTimeRaw.base);
+                formData.append('entry.1775356616', leadTimeRaw.head);
+                try {
+                  const response = await fetch(url2, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData,
+                  });
+                
+                  if (!response.ok) {
+                    console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                }
+              }
+            }
