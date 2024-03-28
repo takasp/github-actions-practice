@@ -19,9 +19,6 @@ jobs:
     environment: GAS_URL
 
     steps:
-      - name: Set inputs
-        run: |
-          echo "RUN_NUMBERS=${{ github.event.inputs.run_numbers || '' }}" >> $GITHUB_ENV
       - name: Get Workflow Number and Completion Time
         uses: actions/github-script@v7
         env:
@@ -35,8 +32,13 @@ jobs:
               return date.toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/-/g, '/').slice(0, -3);
             };
             
+            const isCommaSeparatedNumbers = input => {
+              const parts = input.split(',');
+              return parts.every(part => !isNaN(parseFloat(part)) && isFinite(part));
+            };
+            
             const eventName = context.eventName;
-            const inputRunNumbers = process.env.RUN_NUMBERS;
+            const inputRunNumbers = context.payload.inputs.run_numbers;
             const allWorkflowRuns = [];
             const workflowId = '73424475';
             console.log("github:", JSON.stringify(github));
@@ -53,11 +55,14 @@ jobs:
             const workflow = await github.rest.actions.getWorkflow({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: '73424475',
+              workflow_id: workflowId,
             });
             console.log(JSON.stringify(workflow));
             
             if (eventName === 'workflow_dispatch' && inputRunNumbers) {
+              if (!isCommaSeparatedNumbers(inputRunNumbers)) {
+                throw new Error(`Invalid inputs.run_numbers: ${inputRunNumbers} is not a valid comma-separated numbers string`);
+              }
               const runNumbers = inputRunNumbers.split(',').map(Number);
               const workflow_runs = await Promise.all(runNumbers.map(async runNumber => {
                 const response = await github.rest.actions.getWorkflowRun({
@@ -105,32 +110,34 @@ jobs:
               repository: workflowRun.repository.name,
               author: workflowRun.triggering_actor.login,
               jst_released_at: toJSTString(workflowRun.updated_at),
-            })).sort((a, b) => a.number - b.number);
+            }));
 
-            if (deploymentFrequencyRawList.length) {
-              const url = process.env.DEPLOYMENT_FREQUENCY_URL;
-              for (const deploymentFrequencyRaw of deploymentFrequencyRawList) {
-                const formData = new URLSearchParams();
-                formData.append('entry.1465423696', deploymentFrequencyRaw.number);
-                formData.append('entry.1787920898', deploymentFrequencyRaw.run_id);
-                formData.append('entry.1253201792', deploymentFrequencyRaw.released_at);
-                formData.append('entry.151897309', deploymentFrequencyRaw.repository);
-                formData.append('entry.1926035146', deploymentFrequencyRaw.author);
-                formData.append('entry.1447505964', deploymentFrequencyRaw.jst_released_at);
-                try {
-                  const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formData,
-                  });
-                
-                  if (!response.ok) {
-                    console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
-                  }
-                } catch (error) {
-                  console.error('Error:', error);
+            if (deploymentFrequencyRawList.length === 0) {
+              throw new Error('No Workflows found');
+            }
+
+            const url = process.env.DEPLOYMENT_FREQUENCY_URL;
+            for (const deploymentFrequencyRaw of deploymentFrequencyRawList) {
+              const formData = new URLSearchParams();
+              formData.append('entry.1465423696', deploymentFrequencyRaw.number);
+              formData.append('entry.1787920898', deploymentFrequencyRaw.run_id);
+              formData.append('entry.1253201792', deploymentFrequencyRaw.released_at);
+              formData.append('entry.151897309', deploymentFrequencyRaw.repository);
+              formData.append('entry.1926035146', deploymentFrequencyRaw.author);
+              formData.append('entry.1447505964', deploymentFrequencyRaw.jst_released_at);
+              try {
+                const response = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  },
+                  body: formData,
+                });
+              
+                if (!response.ok) {
+                  console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
                 }
+              } catch (error) {
+                console.error('Error:', error);
               }
             }
