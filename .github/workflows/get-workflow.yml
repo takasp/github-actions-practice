@@ -134,7 +134,6 @@ jobs:
                   },
                   body: formData,
                 });
-                console.info(`formData: ${[...formData]}`);
               
                 if (!response.ok) {
                   console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
@@ -143,6 +142,8 @@ jobs:
                 }
               } catch (error) {
                 console.error('Error:', error);
+                console.info(`formData: ${[...formData]}`);
+                errorOccurred = true;
               }
             }
             if (errorOccurred) {

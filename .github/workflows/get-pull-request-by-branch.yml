@@ -197,6 +197,7 @@ jobs:
             }
 
             const url = process.env.LEAD_TIME_URL;
+            let errorOccurred = false;
             for (const pr of mergedPRs) {
               try {
                 const formData = new URLSearchParams();
@@ -221,9 +222,15 @@ jobs:
             
                 if (!response.ok) {
                   console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+                  console.info(`formData: ${[...formData]}`);
+                  errorOccurred = true;
                 }
               } catch (error) {
-                console.log('pr: ', pr);
                 console.error('Error:', error);
+                console.info(`formData: ${[...formData]}`);
+                errorOccurred = true;
               }
+            }
+            if (errorOccurred) {
+              throw new Error('One or more errors occurred during processing.');
             }
