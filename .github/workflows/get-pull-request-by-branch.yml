@@ -190,6 +190,10 @@ jobs:
             }).filter(pr => pr !== null); // スキップしたnullをフィルタリングして削除
             
             console.log("mergedPRs:", mergedPRs.length, "件");
+            if (mergedPRs.length === 0) {
+              throw new Error('No merged PRs found');
+            }
+
             const url = process.env.LEAD_TIME_URL;
             for (const pr of mergedPRs) {
               try {
