@@ -187,7 +187,9 @@ jobs:
                 jst_merged_at: toJSTString(pr.mergedAt),
                 jst_first_created: toJSTString(firstCreated.toISOString())
               };
-            }).filter(pr => pr !== null); // スキップしたnullをフィルタリングして削除
+            })
+            .filter(pr => pr !== null) // スキップしたnullをフィルタリングして削除
+            .sort((a, b) => a.number - b.number);
             
             console.log("mergedPRs:", mergedPRs.length, "件");
             if (mergedPRs.length === 0) {
@@ -195,6 +197,7 @@ jobs:
             }
 
             const url = process.env.LEAD_TIME_URL;
+            let errorOccurred = false;
             for (const pr of mergedPRs) {
               try {
                 const formData = new URLSearchParams();
@@ -219,9 +222,15 @@ jobs:
             
                 if (!response.ok) {
                   console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+                  console.info(`formData: ${[...formData]}`);
+                  errorOccurred = true;
                 }
               } catch (error) {
-                console.log('pr: ', pr);
                 console.error('Error:', error);
+                console.info(`formData: ${[...formData]}`);
+                errorOccurred = true;
               }
+            }
+            if (errorOccurred) {
+              throw new Error('One or more errors occurred during processing.');
             }
