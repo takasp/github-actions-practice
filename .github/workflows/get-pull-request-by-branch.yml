@@ -14,25 +14,9 @@ jobs:
     timeout-minutes: 360
     environment: GAS_URL
     steps:
-      - name: Get event name merged
-        id: merged
-        if: github.event.pull_request.merged == true
-        run: echo event='merged' >> $GITHUB_OUTPUT
-      - name: Get event name workflow_dispatch
-        id: workflow_dispatch
-        if: github.event_name == 'workflow_dispatch'
-        run: echo event='workflow_dispatch' >> $GITHUB_OUTPUT
-      - name: echo vars
-        run: |
-          echo ${{ steps.merged.outputs.event }}
-          echo ${{ steps.workflow_dispatch.outputs.event }}
-      - name: Set inputs
-        run: |
-          echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '' }}" >> $GITHUB_ENV
       - name: Get pull requests
         uses: actions/github-script@v7
         env:
-          EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event }}
           LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
           NODE_OPTIONS: "--max_old_space_size=4096"
         with:
@@ -56,20 +40,15 @@ jobs:
             let prNumbers = [];
             let isPullRequestEvent = false;
 
-            if (context.event_name === 'workflow_dispatch' && context.payload.inputs.pr_numbers) {
+            if (context.eventName === 'workflow_dispatch' && context.payload.inputs.pr_numbers) {
               prNumbers = context.payload.inputs.pr_numbers.split(',').map(num => parseInt(num.trim(), 10));
-            } else if (context.event_name === 'pull_request') {
+            } else if (context.eventName === 'pull_request') {
               prNumbers = [context.payload.pull_request.number];
               isPullRequestEvent = true;
             }
-            console.log("context.eventName:", context.eventName);
-            console.log("github.event_name:", github.event_name);
-            console.log("context.event_name:", context.event_name);
             console.log("github:", JSON.stringify(github));
             console.log("context:", JSON.stringify(context));
-            console.log("inputs.pr_numbers:", inputs.pr_numbers);
             console.log("prNumbers:", prNumbers);
-            console.log("context.event_name:", context.event_name);
             console.log("isPullRequestEvent:", isPullRequestEvent);
 
             const query = `
