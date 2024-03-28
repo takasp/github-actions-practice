@@ -7,7 +7,7 @@ on:
       - completed
   workflow_dispatch:
     inputs:
-      run_idss:
+      run_ids:
         description: 'Comma-separated list of run ids'
         required: false
   push:
@@ -117,6 +117,7 @@ jobs:
             }
 
             const url = process.env.DEPLOYMENT_FREQUENCY_URL;
+            let errorOccurred = false;
             for (const deploymentFrequencyRaw of deploymentFrequencyRawList) {
               const formData = new URLSearchParams();
               formData.append('entry.1465423696', deploymentFrequencyRaw.number);
@@ -136,8 +137,12 @@ jobs:
               
                 if (!response.ok) {
                   console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+                  errorOccurred = true;
                 }
               } catch (error) {
                 console.error('Error:', error);
               }
+            }
+            if (errorOccurred) {
+              throw new Error('One or more errors occurred during processing.');
             }
