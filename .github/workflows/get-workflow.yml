@@ -37,7 +37,7 @@ jobs:
             
             const eventName = context.eventName;
             const allWorkflowRuns = [];
-            const workflowId = 'hadolint.yml';
+            const workflowId = 'hadolint.yml'; // workflowファイル名も指定できる
             console.log("github:", JSON.stringify(github));
             console.log("context:", JSON.stringify(context));
 
