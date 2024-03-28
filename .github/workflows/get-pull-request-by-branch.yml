@@ -60,7 +60,25 @@ jobs:
                   query ($owner: String!, $repo: String!, $number: Int!) {
                     repository(owner: $owner, name: $repo) {
                       pullRequest(number: $number) {
-                        // 必要なフィールドをここに含めます。
+                        number
+                        createdAt
+                        mergedAt
+                        baseRefName
+                        headRefName
+                        author {
+                          login
+                        }
+                        repository {
+                          nameWithOwner
+                        }
+                        commits(first: 1) {
+                          nodes {
+                            commit {
+                              authoredDate
+                              committedDate
+                            }
+                          }
+                        }
                       }
                     }
                   }
