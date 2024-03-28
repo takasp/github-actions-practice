@@ -62,6 +62,7 @@ jobs:
               prNumbers = [context.payload.pull_request.number];
               isPullRequestEvent = true;
             }
+            console.log("context.event_name:", context.event_name);
             console.log("context.payload.inputs.pr_numbers:", context.payload.inputs.pr_numbers);
             console.log("prNumbers:", prNumbers);
             console.log("context.event_name:", context.event_name);
