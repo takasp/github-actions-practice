@@ -19,33 +19,29 @@ jobs:
     environment: GAS_URL
 
     steps:
-      - name: Get event name workflow_run_success
-        id: workflow_run_success
-        if: github.event.workflow_run.conclusion == 'success'
-        run: echo event='workflow_run_success' >> $GITHUB_OUTPUT
-      - name: Get event name workflow_dispatch
-        id: workflow_dispatch
-        if: github.event_name == 'workflow_dispatch'
-        run: echo event='workflow_dispatch' >> $GITHUB_OUTPUT
-      - name: echo vars
-        run: |
-          echo ${{ steps.workflow_run_success.outputs.event }}
-          echo ${{ steps.workflow_dispatch.outputs.event }}
       - name: Set inputs
         run: |
           echo "RUN_NUMBERS=${{ github.event.inputs.run_numbers || '' }}" >> $GITHUB_ENV
       - name: Get Workflow Number and Completion Time
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
-          EVENT_NAME: ${{ steps.workflow_run_success.outputs.event || steps.workflow_dispatch.outputs.event }}
           DEPLOYMENT_FREQUENCY_URL: ${{ secrets.DEPLOYMENT_FREQUENCY_URL }}
-          DEPLOYMENT_FREQUENCY_URL2: ${{ secrets.DEPLOYMENT_FREQUENCY_URL2 }}
         with:
           script: |
-            const eventName = process.env.EVENT_NAME;
+            const toJSTString = (dateString) => {
+              if (!dateString) return null;
+              const date = new Date(dateString);
+              date.setHours(date.getHours() + 9); // Convert to JST
+              return date.toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/-/g, '/').slice(0, -3);
+            };
+            
+            const eventName = context.eventName;
             const inputRunNumbers = process.env.RUN_NUMBERS;
             const allWorkflowRuns = [];
             const workflowId = '73424475';
+            console.log("github:", JSON.stringify(github));
+            console.log("context:", JSON.stringify(context));
+            console.log("inputRunNumbers:", inputRunNumbers);
 
             const workflows = await github.rest.actions.listRepoWorkflows({
               owner: context.repo.owner,
@@ -108,10 +104,11 @@ jobs:
               released_at: workflowRun.updated_at,
               repository: workflowRun.repository.name,
               author: workflowRun.triggering_actor.login,
+              jst_released_at: toJSTString(workflowRun.updated_at),
             })).sort((a, b) => a.number - b.number);
 
             if (deploymentFrequencyRawList.length) {
-              const url2 = process.env.DEPLOYMENT_FREQUENCY_URL2;
+              const url = process.env.DEPLOYMENT_FREQUENCY_URL;
               for (const deploymentFrequencyRaw of deploymentFrequencyRawList) {
                 const formData = new URLSearchParams();
                 formData.append('entry.1465423696', deploymentFrequencyRaw.number);
@@ -119,8 +116,9 @@ jobs:
                 formData.append('entry.1253201792', deploymentFrequencyRaw.released_at);
                 formData.append('entry.151897309', deploymentFrequencyRaw.repository);
                 formData.append('entry.1926035146', deploymentFrequencyRaw.author);
+                formData.append('entry.1447505964', deploymentFrequencyRaw.jst_released_at);
                 try {
-                  const response = await fetch(url2, {
+                  const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/x-www-form-urlencoded',
