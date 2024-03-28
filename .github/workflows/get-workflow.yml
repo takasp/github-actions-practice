@@ -111,6 +111,9 @@ jobs:
               author: workflowRun.triggering_actor.login,
               jst_released_at: toJSTString(workflowRun.updated_at),
             })).sort((a, b) => a.number - b.number);
+            deploymentFrequencyRawList.forEach((item, index) => {
+              console.log(`Item ${index} number type:`, typeof item.number);
+            });
 
             if (deploymentFrequencyRawList.length === 0) {
               throw new Error('No Workflows found');
