@@ -180,7 +180,7 @@ jobs:
               };
             }).filter(pr => pr !== null); // スキップしたnullをフィルタリングして削除
             
-            console.log("mergedPRs:", mergedPRs, "件");
+            console.log("mergedPRs:", mergedPRs.length, "件");
             const url = process.env.LEAD_TIME_URL;
             for (const pr of mergedPRs) {
               try {
