@@ -38,18 +38,15 @@ jobs:
             const repo = context.repo.repo;
 
             let prNumbers = [];
-            let isPullRequestEvent = false;
 
             if (context.eventName === 'workflow_dispatch' && context.payload.inputs.pr_numbers) {
               prNumbers = context.payload.inputs.pr_numbers.split(',').map(num => parseInt(num.trim(), 10));
             } else if (context.eventName === 'pull_request') {
               prNumbers = [context.payload.pull_request.number];
-              isPullRequestEvent = true;
             }
             console.log("github:", JSON.stringify(github));
             console.log("context:", JSON.stringify(context));
             console.log("prNumbers:", prNumbers);
-            console.log("isPullRequestEvent:", isPullRequestEvent);
 
             let allPRs = [];
 
@@ -183,6 +180,7 @@ jobs:
               };
             }).filter(pr => pr !== null); // スキップしたnullをフィルタリングして削除
             
+            console.log("mergedPRs:", mergedPRs, "件");
             const url = process.env.LEAD_TIME_URL;
             for (const pr of mergedPRs) {
               try {
