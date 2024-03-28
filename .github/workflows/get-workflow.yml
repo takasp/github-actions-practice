@@ -7,8 +7,8 @@ on:
       - completed
   workflow_dispatch:
     inputs:
-      run_numbers:
-        description: 'Comma-separated list of run numbers'
+      run_idss:
+        description: 'Comma-separated list of run ids'
         required: false
   push:
     branches: [ "main" ]
@@ -32,18 +32,18 @@ jobs:
               return date.toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/-/g, '/').slice(0, -3);
             };
             
-            const isCommaSeparatedNumbers = input => {
+            const isCommaSeparatedIds = input => {
               const parts = input.split(',');
               return parts.every(part => !isNaN(parseFloat(part)) && isFinite(part));
             };
             
             const eventName = context.eventName;
-            const inputRunNumbers = context.payload.inputs.run_numbers;
+            const inputRunIds = context.payload.inputs.run_ids;
             const allWorkflowRuns = [];
             const workflowId = '73424475';
             console.log("github:", JSON.stringify(github));
             console.log("context:", JSON.stringify(context));
-            console.log("inputRunNumbers:", inputRunNumbers);
+            console.log("inputRunIds:", inputRunIds);
 
             const workflows = await github.rest.actions.listRepoWorkflows({
               owner: context.repo.owner,
@@ -59,16 +59,16 @@ jobs:
             });
             console.log(JSON.stringify(workflow));
             
-            if (eventName === 'workflow_dispatch' && inputRunNumbers) {
-              if (!isCommaSeparatedNumbers(inputRunNumbers)) {
-                throw new Error(`Invalid inputs.run_numbers: ${inputRunNumbers} is not a valid comma-separated numbers string`);
+            if (eventName === 'workflow_dispatch' && inputRunIds) {
+              if (!isCommaSeparatedIds(inputRunIds)) {
+                throw new Error(`Invalid inputs.run_ids: ${inputRunIds} is not a valid comma-separated ids string`);
               }
-              const runNumbers = inputRunNumbers.split(',').map(Number);
-              const workflow_runs = await Promise.all(runNumbers.map(async runNumber => {
+              const runIds = inputRunIds.split(',').map(num => parseInt(num.trim(), 10));
+              const workflow_runs = await Promise.all(runIds.map(async runId => {
                 const response = await github.rest.actions.getWorkflowRun({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  run_id: runNumber,
+                  run_id: runId,
                 });
                 return response.data;
               }));
