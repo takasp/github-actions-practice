@@ -33,6 +33,11 @@ jobs:
               const validDates = dates.filter(date => date);
               return validDates.length > 0 ? new Date(Math.min(...validDates.map(date => new Date(date)))) : null;
             };
+            
+            const isCommaSeparatedNumbers = input => {
+              const parts = input.split(',');
+              return parts.every(part => !isNaN(parseFloat(part)) && isFinite(part));
+            };
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -40,6 +45,9 @@ jobs:
             let prNumbers = [];
 
             if (context.eventName === 'workflow_dispatch' && context.payload.inputs.pr_numbers) {
+              if (!isCommaSeparatedNumbers(context.payload.inputs.pr_numbers)) {
+                  throw new Error('Input is not a valid comma-separated numbers string');
+              }
               prNumbers = context.payload.inputs.pr_numbers.split(',').map(num => parseInt(num.trim(), 10));
             } else if (context.eventName === 'pull_request') {
               prNumbers = [context.payload.pull_request.number];
