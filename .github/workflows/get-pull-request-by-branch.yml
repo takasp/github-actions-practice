@@ -45,10 +45,11 @@ jobs:
             let prNumbers = [];
 
             if (context.eventName === 'workflow_dispatch' && context.payload.inputs.pr_numbers) {
-              if (!isCommaSeparatedNumbers(context.payload.inputs.pr_numbers)) {
-                throw new Error('Input is not a valid comma-separated numbers string');
+              const inputPrNumbers = context.payload.inputs.pr_numbers;
+              if (!isCommaSeparatedNumbers(inputPrNumbers)) {
+                throw new Error(`Invalid inputs.pr_numbers: ${inputPrNumbers} is not a valid comma-separated numbers string`);
               }
-              prNumbers = context.payload.inputs.pr_numbers.split(',').map(num => parseInt(num.trim(), 10));
+              prNumbers = inputPrNumbers.split(',').map(num => parseInt(num.trim(), 10));
             } else if (context.eventName === 'pull_request') {
               prNumbers = [context.payload.pull_request.number];
             }
