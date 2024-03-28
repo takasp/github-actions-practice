@@ -10,8 +10,6 @@ on:
       run_ids:
         description: 'Comma-separated list of run ids'
         required: false
-  push:
-    branches: [ "main" ]
 
 jobs:
   get_workflow_info:
@@ -38,12 +36,10 @@ jobs:
             };
             
             const eventName = context.eventName;
-            const inputRunIds = context.payload.inputs.run_ids;
             const allWorkflowRuns = [];
             const workflowId = '73424475';
             console.log("github:", JSON.stringify(github));
             console.log("context:", JSON.stringify(context));
-            console.log("inputRunIds:", inputRunIds);
 
             const workflows = await github.rest.actions.listRepoWorkflows({
               owner: context.repo.owner,
@@ -59,7 +55,8 @@ jobs:
             });
             console.log(JSON.stringify(workflow));
             
-            if (eventName === 'workflow_dispatch' && inputRunIds) {
+            if (eventName === 'workflow_dispatch' && context.payload.inputs.run_ids) {
+              const inputRunIds = context.payload.inputs.run_ids;
               if (!isCommaSeparatedIds(inputRunIds)) {
                 throw new Error(`Invalid inputs.run_ids: ${inputRunIds} is not a valid comma-separated ids string`);
               }
