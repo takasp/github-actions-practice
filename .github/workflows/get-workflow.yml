@@ -92,6 +92,7 @@ jobs:
                 page++;
               }
             } else if (eventName === 'workflow_run_success') {
+              console.log("context.payload.workflow_run.id:", context.payload.workflow_run.id);
               const { data } = await github.rest.actions.getWorkflowRun({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
