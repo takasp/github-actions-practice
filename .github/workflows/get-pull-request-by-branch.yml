@@ -64,7 +64,7 @@ jobs:
             }
             console.log("github.event_name:", github.event_name);
             console.log("context.event_name:", context.event_name);
-            console.log("context.payload.inputs.pr_numbers:", context.payload.inputs.pr_numbers);
+            console.log("context:", JSON.stringify(context));
             console.log("inputs.pr_numbers:", inputs.pr_numbers);
             console.log("prNumbers:", prNumbers);
             console.log("context.event_name:", context.event_name);
