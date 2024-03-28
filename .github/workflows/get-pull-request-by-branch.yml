@@ -90,7 +90,8 @@ jobs:
                   number: prNumber
                 });
               
-                if (result.repository.pullRequest) {
+                // GraphQLでマージされた条件を指定できないのでここでマージされたPRを対象に取得する
+                if (result.repository.pullRequest && result.repository.pullRequest.mergedAt) {
                   allPRs.push(result.repository.pullRequest);
                 }
               }
