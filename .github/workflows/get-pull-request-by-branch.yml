@@ -6,139 +6,222 @@ on:
         description: 'Comma-separated list of Pull Request numbers'
         required: false
   pull_request:
-    branches:
-      - main
     types: [ closed ]
 
-
-# TEST大文字だけを含むブランチを対象にする
 jobs:
   summary:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 360
     environment: GAS_URL
     steps:
-      - name: Get event name merged
-        id: merged
-        if: github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'TEST')
-        run: echo event='merged' >> $GITHUB_OUTPUT
-      - name: Get event name workflow_dispatch
-        id: workflow_dispatch
-        if: github.event_name == 'workflow_dispatch'
-        run: echo event='workflow_dispatch' >> $GITHUB_OUTPUT
-      - name: echo vars
-        run: |
-          echo ${{ steps.merged.outputs.event }}
-          echo ${{ steps.workflow_dispatch.outputs.event }}
-      - name: Set inputs
-        run: |
-          echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '' }}" >> $GITHUB_ENV
       - name: Get pull requests
-        uses: actions/github-script@v6
-        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'TEST'))
+        uses: actions/github-script@v7
         env:
-          EVENT_NAME: ${{ steps.merged.outputs.event || steps.workflow_dispatch.outputs.event }}
           LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
-          LEAD_TIME_URL2: ${{ secrets.LEAD_TIME_URL2 }}
+          NODE_OPTIONS: "--max_old_space_size=4096"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const eventName = process.env.EVENT_NAME;
-            const inputPrNumbers = process.env.PR_NUMBERS;
-            const allPullRequests = [];
-
-            if (eventName === 'workflow_dispatch' && inputPrNumbers) {
-              const prNumbers = inputPrNumbers.split(',').map(Number);
-              const data = await Promise.all(prNumbers.map(async prNumber => {
-                const response = await github.rest.pulls.get({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  state: 'closed',
-                  pull_number: prNumber
-                });
-                return response.data;
-              }));
-              const mergedData = data.filter(pr => pr.merged_at !== null);
+            const toJSTString = (dateString) => {
+              if (!dateString) return null;
+              const date = new Date(dateString);
+              date.setHours(date.getHours() + 9); // Convert to JST
+              return date.toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/-/g, '/').slice(0, -3);
+            };
             
-              allPullRequests.push(...mergedData);
-            } else if (eventName === 'workflow_dispatch') {
-              const perPage = 100;
-              let page = 1;
-              while (true) {
-                const { data } = await github.rest.pulls.list({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  state: 'closed',
-                  per_page: perPage,
-                  page: page
-                });
-                const mergedData = data.filter(pr => pr.merged_at !== null);
-  
-                if (mergedData.length === 0) {
-                  break;
-                }
-  
-                allPullRequests.push(...mergedData);
-                page++;
+            const getMinDate = (dates) => {
+              const validDates = dates.filter(date => date);
+              return validDates.length > 0 ? new Date(Math.min(...validDates.map(date => new Date(date)))) : null;
+            };
+            
+            const isCommaSeparatedNumbers = input => {
+              const parts = input.split(',');
+              return parts.every(part => !isNaN(parseFloat(part)) && isFinite(part));
+            };
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            let prNumbers = [];
+
+            if (context.eventName === 'workflow_dispatch' && context.payload.inputs.pr_numbers) {
+              const inputPrNumbers = context.payload.inputs.pr_numbers;
+              if (!isCommaSeparatedNumbers(inputPrNumbers)) {
+                throw new Error(`Invalid inputs.pr_numbers: ${inputPrNumbers} is not a valid comma-separated numbers string`);
               }
-            } else if (eventName === 'merged') {
-              const { data } = await github.rest.pulls.get({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: context.payload.pull_request.number
-              });
-              allPullRequests.push(...[data]);
+              prNumbers = inputPrNumbers.split(',').map(num => parseInt(num.trim(), 10));
+            } else if (context.eventName === 'pull_request') {
+              prNumbers = [context.payload.pull_request.number];
             }
-            TESTBranchPullRequests = allPullRequests.filter(pr => /.*TEST.*/.test(pr.head.ref));
+            console.log("github:", JSON.stringify(github));
+            console.log("context:", JSON.stringify(context));
+            console.log("prNumbers:", prNumbers);
 
-            const leadTimeRawList = [];
+            let allPRs = [];
 
-            for (const pr of TESTBranchPullRequests) {
-              const { data: commits } = await github.rest.pulls.listCommits({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-              });
-
-              const sortedCommits = commits.sort((a, b) => (new Date(a.commit.author.date) - new Date(b.commit.author.date)));
-              const firstCommitted = sortedCommits[0].commit.author.date;
-              leadTimeRawList.push({
-                number: pr.number,
-                first_committed: firstCommitted,
-                merged_at: pr.merged_at,
-                repository: pr.head.repo.name,
-                author: pr.user.login,
-                base: pr.base.ref,
-                head: pr.head.ref,
-              });
-            }
-            const leadTimeRawListSortedByNumber = leadTimeRawList.sort((a, b) => a.number - b.number);
-
-            if (leadTimeRawListSortedByNumber.length) {
-              const url2 = process.env.LEAD_TIME_URL2;
-              for (const leadTimeRaw of leadTimeRawListSortedByNumber) {
-                const formData = new URLSearchParams();
-                formData.append('entry.1737429438', leadTimeRaw.number);
-                formData.append('entry.696990060', leadTimeRaw.first_committed);
-                formData.append('entry.883568870', leadTimeRaw.merged_at);
-                formData.append('entry.1770012755', leadTimeRaw.repository);
-                formData.append('entry.1888619409', leadTimeRaw.author);
-                formData.append('entry.864339788', leadTimeRaw.base);
-                formData.append('entry.1775356616', leadTimeRaw.head);
-                try {
-                  const response = await fetch(url2, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formData,
-                  });
-                
-                  if (!response.ok) {
-                    console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+            if (prNumbers.length > 0) {
+              // マージしたPRまたは指定したPRを取得
+              for (const prNumber of prNumbers) {
+                const prQuery = `
+                  query ($owner: String!, $repo: String!, $number: Int!) {
+                    repository(owner: $owner, name: $repo) {
+                      pullRequest(number: $number) {
+                        number
+                        createdAt
+                        mergedAt
+                        baseRefName
+                        headRefName
+                        author {
+                          login
+                        }
+                        repository {
+                          nameWithOwner
+                        }
+                        commits(first: 1) {
+                          nodes {
+                            commit {
+                              authoredDate
+                              committedDate
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
-                } catch (error) {
-                  console.error('Error:', error);
+                `;
+              
+                const result = await github.graphql(prQuery, {
+                  owner,
+                  repo,
+                  number: prNumber
+                });
+              
+                // GraphQLでマージされた条件を指定できないのでここでマージされたPRを対象に取得する
+                if (result.repository.pullRequest && result.repository.pullRequest.mergedAt) {
+                  allPRs.push(result.repository.pullRequest);
                 }
+              }
+            } else {
+              // 全てのマージされたPRを取得
+              let cursor = null;
+              let hasNextPage = true;
+            
+              const pageQuery = `
+                query ($owner: String!, $repo: String!, $cursor: String) {
+                  repository(owner: $owner, name: $repo) {
+                    pullRequests(states: MERGED, first: 100, after: $cursor) {
+                      edges {
+                        node {
+                          number
+                          createdAt
+                          mergedAt
+                          baseRefName
+                          headRefName
+                          author {
+                            login
+                          }
+                          repository {
+                            nameWithOwner
+                          }
+                          commits(first: 1) {
+                            nodes {
+                              commit {
+                                authoredDate
+                                committedDate
+                              }
+                            }
+                          }
+                        }
+                      }
+                      pageInfo {
+                        endCursor
+                        hasNextPage
+                      }
+                    }
+                  }
+                }
+              `;
+              while (hasNextPage) {
+                const result = await github.graphql(pageQuery, {
+                  owner,
+                  repo,
+                  cursor
+                });
+
+                allPRs = allPRs.concat(result.repository.pullRequests.edges.map(edge => edge.node));
+                cursor = result.repository.pullRequests.pageInfo.endCursor;
+                hasNextPage = result.repository.pullRequests.pageInfo.hasNextPage;
+              }
+            }
+            
+            // 取得したPRを精査して加工
+            let mergedPRs = allPRs.map(pr => {
+              // authorがないのはCloseされたPRの可能性があるのでスキップ
+              if (pr.author === null) return null;
+            
+              // commitがないPRが存在する場合があるのでスキップ
+              const firstCommit = pr.commits.nodes.length > 0 ? pr.commits.nodes[0].commit : null;
+              if (!firstCommit) return null;
+            
+              const createdAt = pr.createdAt;
+              const firstCommitAt = firstCommit.committedDate;
+              const firstCommitAuthoredAt = firstCommit.authoredDate;
+            
+              // 日付が不足している場合はスキップ
+              if (!createdAt || !firstCommitAt || !firstCommitAuthoredAt) return null;
+            
+              // PRの作成時刻:createdAt, 最初のコミットを取り込んだ時刻:firstCommitAt, 最初のコミット作成時刻:firstCommitAuthoredAtのいずれかミニマムを取得
+              // AuthorDateが更新されないことを前提に最初の活動の時刻を取得するのが目的
+              const firstCreated = getMinDate([createdAt, firstCommitAt, firstCommitAuthoredAt]);
+            
+              return {
+                number: pr.number,
+                created_at: pr.createdAt,
+                merged_at: pr.mergedAt,
+                first_commit_at: firstCommitAt,
+                first_commit_author_date: firstCommitAuthoredAt,
+                repository: pr.repository.nameWithOwner,
+                author: pr.author ? pr.author.login : 'unknown',
+                base: pr.baseRefName,
+                head: pr.headRefName,
+                jst_merged_at: toJSTString(pr.mergedAt),
+                jst_first_created: toJSTString(firstCreated.toISOString())
+              };
+            }).filter(pr => pr !== null); // スキップしたnullをフィルタリングして削除
+            
+            console.log("mergedPRs:", mergedPRs.length, "件");
+            if (mergedPRs.length === 0) {
+              throw new Error('No merged PRs found');
+            }
+
+            const url = process.env.LEAD_TIME_URL;
+            for (const pr of mergedPRs) {
+              try {
+                const formData = new URLSearchParams();
+                formData.append('entry.1737429438', pr.number);
+                formData.append('entry.696990060', pr.created_at);
+                formData.append('entry.883568870', pr.merged_at);
+                formData.append('entry.1542610687', pr.first_commit_at);
+                formData.append('entry.400445109', pr.first_commit_author_date);
+                formData.append('entry.1770012755', pr.repository);
+                formData.append('entry.1888619409', pr.author);
+                formData.append('entry.864339788', pr.base);
+                formData.append('entry.1775356616', pr.head);
+                formData.append('entry.1457774321', pr.jst_merged_at);
+                formData.append('entry.1401680068', pr.jst_first_created);
+                const response = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  },
+                  body: formData,
+                });
+            
+                if (!response.ok) {
+                  console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
+                }
+              } catch (error) {
+                console.log('pr: ', pr);
+                console.error('Error:', error);
               }
             }
