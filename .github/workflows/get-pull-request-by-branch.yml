@@ -187,7 +187,9 @@ jobs:
                 jst_merged_at: toJSTString(pr.mergedAt),
                 jst_first_created: toJSTString(firstCreated.toISOString())
               };
-            }).filter(pr => pr !== null); // スキップしたnullをフィルタリングして削除
+            })
+            .filter(pr => pr !== null) // スキップしたnullをフィルタリングして削除
+            .sort((a, b) => a.number - b.number);
             
             console.log("mergedPRs:", mergedPRs.length, "件");
             if (mergedPRs.length === 0) {
