@@ -46,7 +46,7 @@ jobs:
 
             if (context.eventName === 'workflow_dispatch' && context.payload.inputs.pr_numbers) {
               if (!isCommaSeparatedNumbers(context.payload.inputs.pr_numbers)) {
-                  throw new Error('Input is not a valid comma-separated numbers string');
+                throw new Error('Input is not a valid comma-separated numbers string');
               }
               prNumbers = context.payload.inputs.pr_numbers.split(',').map(num => parseInt(num.trim(), 10));
             } else if (context.eventName === 'pull_request') {
