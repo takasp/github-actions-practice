@@ -135,6 +135,7 @@ const fetchPRs = async (owner, repo, prNumbers) => {
       hasNextPage = result.repository.pullRequests.pageInfo.hasNextPage;
     }
   }
+  return allPRs;
 };
 
 // 取得したPR情報を加工する関数
