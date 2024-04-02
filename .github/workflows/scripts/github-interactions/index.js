@@ -132,7 +132,7 @@ const fetchPRs = async (owner, repo, prNumbers) => {
 };
 
 // 取得したPR情報を加工する関数
-const processPRs = (allPRs) => {
+const processPRs =async (allPRs) => {
   return allPRs
     .map((pr) => {
       // authorがないのはCloseされたPRの可能性があるのでスキップ
@@ -243,7 +243,7 @@ const run = async () => {
     console.log("-----------");
     const allPRs = await fetchPRs(owner, repo, prNumbers);
     console.log({ allPRs });
-    const mergedPRs = processPRs(allPRs);
+    const mergedPRs = await processPRs(allPRs);
     console.log("mergedPRs:", mergedPRs.length, "件");
     await postData(mergedPRs);
   } catch (error) {
