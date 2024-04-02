@@ -242,6 +242,7 @@ const run = async () => {
   try {
     console.log("-----------");
     const allPRs = await fetchPRs(owner, repo, prNumbers);
+    console.log({allPRs});
     const mergedPRs = processPRs(allPRs);
     console.log("mergedPRs:", mergedPRs.length, "件");
     await postData(mergedPRs);
