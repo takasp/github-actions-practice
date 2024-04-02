@@ -32,8 +32,8 @@ jobs:
         run: npm start
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPO_OWNER: ${{ context.repo.owner }}
-          GITHUB_REPO_NAME: ${{ context.repo.repo }}
+          GITHUB_REPO_OWNER: ${{ github.event.repo.owner }}
+          GITHUB_REPO_NAME: ${{ github.event.repo.repo }}
           PR_NUMBERS: ${{ github.event.inputs.pr_numbers }}
           LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
           NODE_OPTIONS: "--max_old_space_size=4096"
