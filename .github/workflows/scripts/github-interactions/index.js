@@ -33,7 +33,6 @@ const isCommaSeparatedNumbers = (input) => {
 
 const fetchPRs = async (owner, repo, prNumbers) => {
   let allPRs = [];
-  console.log("prNumbers.length:", prNumbers.length);
   if (prNumbers.length > 0) {
     // マージしたPRまたは指定したPRを取得
     for (const prNumber of prNumbers) {
@@ -122,15 +121,10 @@ const fetchPRs = async (owner, repo, prNumbers) => {
         repo,
         cursor,
       });
-      console.log(JSON.stringify(result));
 
       allPRs = allPRs.concat(
         result.repository.pullRequests.edges.map((edge) => edge.node),
       );
-      console.log("-------------------");
-      console.log("-------------------");
-
-      console.log(allPRs);
       cursor = result.repository.pullRequests.pageInfo.endCursor;
       hasNextPage = result.repository.pullRequests.pageInfo.hasNextPage;
     }
@@ -229,8 +223,6 @@ const postData = async (data) => {
 const run = async () => {
   const owner = process.env.GITHUB_REPO_OWNER;
   const repo = process.env.GITHUB_REPO_NAME;
-  console.log({ owner });
-  console.log({ repo });
 
   const prNumbersInput = process.env.PR_NUMBERS;
   let prNumbers = [];
@@ -247,9 +239,7 @@ const run = async () => {
   }
 
   try {
-    console.log("-----------");
     const allPRs = await fetchPRs(owner, repo, prNumbers);
-    console.log({ allPRs });
     const mergedPRs = await processPRs(allPRs);
     console.log("mergedPRs:", mergedPRs.length, "件");
     await postData(mergedPRs);
