@@ -122,7 +122,7 @@ const fetchPRs = async (owner, repo, prNumbers) => {
         repo,
         cursor,
       });
-      console.log({result});
+      console.log(JSON.stringify(result));
 
       allPRs = allPRs.concat(
         result.repository.pullRequests.edges.map((edge) => edge.node),
