@@ -222,6 +222,8 @@ const postData = async (data) => {
 const run = async () => {
   const owner = process.env.GITHUB_REPO_OWNER;
   const repo = process.env.GITHUB_REPO_NAME;
+  console.log({ owner });
+  console.log({ repo });
 
   const prNumbersInput = process.env.PR_NUMBERS;
   let prNumbers = [];
@@ -238,7 +240,7 @@ const run = async () => {
   }
 
   try {
-    console.log("-----------")
+    console.log("-----------");
     const allPRs = await fetchPRs(owner, repo, prNumbers);
     const mergedPRs = processPRs(allPRs);
     console.log("mergedPRs:", mergedPRs.length, "件");
