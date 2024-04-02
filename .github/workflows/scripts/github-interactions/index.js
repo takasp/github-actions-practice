@@ -132,7 +132,7 @@ const fetchPRs = async (owner, repo, prNumbers) => {
 };
 
 // 取得したPR情報を加工する関数
-const processPRs =async (allPRs) => {
+const processPRs = async (allPRs) => {
   return allPRs
     .map((pr) => {
       // authorがないのはCloseされたPRの可能性があるのでスキップ
