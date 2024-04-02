@@ -216,6 +216,7 @@ const postData = async (data) => {
   }
   if (errorOccurred) {
     throw new Error("One or more errors occurred during processing.");
+    process.exit(1);
   }
 };
 
@@ -248,10 +249,8 @@ const run = async () => {
     await postData(mergedPRs);
   } catch (error) {
     console.error("Error during script execution:", error);
+    process.exit(1);
   }
 };
 
-await run().catch((error) => {
-  console.error("An error occurred:", error);
-  process.exit(1);
-});
+run()
