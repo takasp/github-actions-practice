@@ -1,4 +1,9 @@
-import { graphqlWithAuth, toJSTString, getMinDate, isCommaSeparatedNumbers } from './utils.js';
+import {
+  graphqlWithAuth,
+  toJSTString,
+  getMinDate,
+  isCommaSeparatedNumbers,
+} from "./utils.js";
 
 const fetchPRs = async (owner, repo, prNumbers) => {
   let allPRs = [];
