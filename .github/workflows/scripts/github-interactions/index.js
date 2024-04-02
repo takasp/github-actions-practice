@@ -1,5 +1,4 @@
-const { graphql } = require("@octokit/graphql");
-const fetch = require("node-fetch");
+import { graphql } from "@octokit/graphql";
 
 const graphqlWithAuth = graphql.defaults({
   headers: {
@@ -239,6 +238,7 @@ const run = async () => {
   }
 
   try {
+    console.log("-----------")
     const allPRs = await fetchPRs(owner, repo, prNumbers);
     const mergedPRs = processPRs(allPRs);
     console.log("mergedPRs:", mergedPRs.length, "件");

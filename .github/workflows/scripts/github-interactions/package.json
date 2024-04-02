@@ -2,6 +2,7 @@
   "name": "github-interactions",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -13,8 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@octokit/graphql": "^8.0.1",
-    "node-fetch": "^3.3.2"
+    "@octokit/graphql": "^8.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "1.6.3"
