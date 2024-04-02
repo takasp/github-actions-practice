@@ -127,6 +127,10 @@ const fetchPRs = async (owner, repo, prNumbers) => {
       allPRs = allPRs.concat(
         result.repository.pullRequests.edges.map((edge) => edge.node),
       );
+      console.log("-------------------");
+      console.log("-------------------");
+
+      console.log(allPRs);
       cursor = result.repository.pullRequests.pageInfo.endCursor;
       hasNextPage = result.repository.pullRequests.pageInfo.hasNextPage;
     }
