@@ -28,12 +28,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Set repository owner and name as env
+        run: |
+          echo "GITHUB_REPO_OWNER=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 1)" >> $GITHUB_ENV
+          echo "GITHUB_REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
+
       - name: Run get-pull-requests
         run: npm start
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPO_OWNER: ${{ GITHUB_REPOSITORY_OWNER }}
-          GITHUB_REPO_NAME: ${{ GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/ }}
+#          GITHUB_REPO_OWNER: ${{ github.repository_owner }}
+#          GITHUB_REPO_NAME: ${{ GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/ }}
           PR_NUMBERS: ${{ github.event.inputs.pr_numbers }}
           LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
           NODE_OPTIONS: "--max_old_space_size=4096"
