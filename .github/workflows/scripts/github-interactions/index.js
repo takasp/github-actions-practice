@@ -33,6 +33,7 @@ const isCommaSeparatedNumbers = (input) => {
 
 const fetchPRs = async (owner, repo, prNumbers) => {
   let allPRs = [];
+  console.log("prNumbers.length:", prNumbers.length);
   if (prNumbers.length > 0) {
     // マージしたPRまたは指定したPRを取得
     for (const prNumber of prNumbers) {
@@ -121,6 +122,7 @@ const fetchPRs = async (owner, repo, prNumbers) => {
         repo,
         cursor,
       });
+      console.log({result});
 
       allPRs = allPRs.concat(
         result.repository.pullRequests.edges.map((edge) => edge.node),
