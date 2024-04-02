@@ -216,7 +216,6 @@ const postData = async (data) => {
   }
   if (errorOccurred) {
     throw new Error("One or more errors occurred during processing.");
-    process.exit(1);
   }
 };
 
