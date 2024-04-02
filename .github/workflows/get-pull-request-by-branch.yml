@@ -15,7 +15,7 @@ jobs:
     environment: GAS_URL
     defaults:
       run:
-        working-directory: su.github/workflows/scripts/github-interactions
+        working-directory: .github/workflows/scripts/github-interactions
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
