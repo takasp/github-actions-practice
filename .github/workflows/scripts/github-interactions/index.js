@@ -242,7 +242,7 @@ const run = async () => {
   try {
     console.log("-----------");
     const allPRs = await fetchPRs(owner, repo, prNumbers);
-    console.log({allPRs});
+    console.log({ allPRs });
     const mergedPRs = processPRs(allPRs);
     console.log("mergedPRs:", mergedPRs.length, "件");
     await postData(mergedPRs);
@@ -251,9 +251,7 @@ const run = async () => {
   }
 };
 
-try {
-  run();
-} catch (error) {
-  console.error('An error occurred:', error);
+await run().catch((error) => {
+  console.error("An error occurred:", error);
   process.exit(1);
-}
+});
