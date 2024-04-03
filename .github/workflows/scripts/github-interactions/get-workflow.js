@@ -138,8 +138,6 @@ const postData = async (data) => {
     const eventName = process.env.EVENT_NAME;
     const workflowId = "hadolint.yml"; // workflowファイル名も指定できる
     const inputRunIds = process.env.RUN_IDS;
-    console.log("github:", JSON.stringify(github));
-    console.log("context:", JSON.stringify(context));
 
     const allWorkflowRuns = await fetchWorkflows(
       eventName,
