@@ -6,6 +6,7 @@
   "main": "get-pull-request.js",
   "scripts": {
     "start:pull-request": "node get-pull-request.js",
+    "start:workflow": "node get-workflow.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "fmt": "biome format --write .",
     "lint": "biome lint ."
@@ -14,7 +15,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@octokit/graphql": "^8.0.1"
+    "@octokit/graphql": "^8.0.1",
+    "@octokit/rest": "^20.0.2"
   },
   "devDependencies": {
     "@biomejs/biome": "1.6.3"

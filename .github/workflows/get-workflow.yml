@@ -15,135 +15,30 @@ jobs:
   get_workflow_info:
     runs-on: ubuntu-latest
     environment: GAS_URL
-
+    defaults:
+      run:
+        working-directory: .github/workflows/scripts/github-interactions
     steps:
-      - name: Get Workflow Number and Completion Time
-        uses: actions/github-script@v7
-        env:
-          DEPLOYMENT_FREQUENCY_URL: ${{ secrets.DEPLOYMENT_FREQUENCY_URL }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          script: |
-            const toJSTString = (dateString) => {
-              if (!dateString) return null;
-              const date = new Date(dateString);
-              date.setHours(date.getHours() + 9); // Convert to JST
-              return date.toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/-/g, '/').slice(0, -3);
-            };
-            
-            const isCommaSeparatedIds = input => {
-              const parts = input.split(',');
-              return parts.every(part => !isNaN(parseFloat(part)) && isFinite(part));
-            };
-            
-            const eventName = context.eventName;
-            const allWorkflowRuns = [];
-            const workflowId = 'hadolint.yml'; // workflowファイル名も指定できる
-            console.log("github:", JSON.stringify(github));
-            console.log("context:", JSON.stringify(context));
+          node-version: '20'
 
-            const workflows = await github.rest.actions.listRepoWorkflows({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            
-            console.log(JSON.stringify(workflows));
-            
-            const workflow = await github.rest.actions.getWorkflow({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: workflowId,
-            });
-            console.log(JSON.stringify(workflow));
-            
-            if (eventName === 'workflow_dispatch' && context.payload.inputs.run_ids) {
-              const inputRunIds = context.payload.inputs.run_ids;
-              if (!isCommaSeparatedIds(inputRunIds)) {
-                throw new Error(`Invalid inputs.run_ids: ${inputRunIds} is not a valid comma-separated ids string`);
-              }
-              const runIds = inputRunIds.split(',').map(num => parseInt(num.trim(), 10));
-              const workflow_runs = await Promise.all(runIds.map(async runId => {
-                const response = await github.rest.actions.getWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  run_id: runId,
-                });
-                return response.data;
-              }));
-            
-              allWorkflowRuns.push(...workflow_runs);
-            } else if (eventName === 'workflow_dispatch') {
-              const perPage = 100;
-              let page = 1;
-              while (true) {
-                const { data: { workflow_runs } } = await github.rest.actions.listWorkflowRuns({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  workflow_id: workflowId,
-                  status: 'success',
-                  per_page: perPage,
-                  page: page
-                });
-              
-                if (workflow_runs.length === 0) {
-                  break;
-                }
-              
-                allWorkflowRuns.push(...workflow_runs);
-                page++;
-              }
-            } else if (eventName === 'workflow_run') {
-              console.log("context.payload.workflow_run.id:", context.payload.workflow_run.id);
-              const { data } = await github.rest.actions.getWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  run_id: context.payload.workflow_run.id,
-              });
-              allWorkflowRuns.push(...[data]);
-            }
+      - name: Install dependencies
+        run: npm install
 
-            const deploymentFrequencyRawList = allWorkflowRuns.map(workflowRun => ({
-              number: workflowRun.run_number,
-              run_id: workflowRun.id,
-              released_at: workflowRun.updated_at,
-              repository: workflowRun.repository.name,
-              author: workflowRun.triggering_actor.login,
-              jst_released_at: toJSTString(workflowRun.updated_at),
-            })).sort((a, b) => a.number - b.number);
+      - name: Set repository owner and name as env
+        run: |
+          echo "GITHUB_REPO_OWNER=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 1)" >> $GITHUB_ENV
+          echo "GITHUB_REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
 
-            if (deploymentFrequencyRawList.length === 0) {
-              throw new Error('No Workflows found');
-            }
-
-            const url = process.env.DEPLOYMENT_FREQUENCY_URL;
-            let errorOccurred = false;
-            for (const deploymentFrequencyRaw of deploymentFrequencyRawList) {
-              const formData = new URLSearchParams();
-              formData.append('entry.1465423696', deploymentFrequencyRaw.number);
-              formData.append('entry.1787920898', deploymentFrequencyRaw.run_id);
-              formData.append('entry.1253201792', deploymentFrequencyRaw.released_at);
-              formData.append('entry.151897309', deploymentFrequencyRaw.repository);
-              formData.append('entry.1926035146', deploymentFrequencyRaw.author);
-              formData.append('entry.1447505964', deploymentFrequencyRaw.jst_released_at);
-              try {
-                const response = await fetch(url, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                  },
-                  body: formData,
-                });
-              
-                if (!response.ok) {
-                  console.error(`Failed to post data: ${response.status} - ${await response.text()}`);
-                  console.info(`formData: ${[...formData]}`);
-                  errorOccurred = true;
-                }
-              } catch (error) {
-                console.error('Error:', error);
-                console.info(`formData: ${[...formData]}`);
-                errorOccurred = true;
-              }
-            }
-            if (errorOccurred) {
-              throw new Error('One or more errors occurred during processing.');
-            }
+      - name: Run get-workflow
+        run: npm run start:workflow
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_IDS: ${{ github.event.inputs.run_ids }}
+          DEPLOYMENT_FREQUENCY_URL: ${{ secrets.DEPLOYMENT_FREQUENCY_URL }}

@@ -1,11 +1,14 @@
 import {
-  graphqlWithAuth,
-  toJSTString,
   getMinDate,
+  graphqlWithAuth,
   isCommaSeparatedNumbers,
+  toJSTString,
 } from "./utils.js";
 
-const fetchPRs = async (owner, repo, prNumbers) => {
+const fetchPRs = async (prNumbers) => {
+  const owner = process.env.GITHUB_REPO_OWNER;
+  const repo = process.env.GITHUB_REPO_NAME;
+
   let allPRs = [];
   if (prNumbers.length > 0) {
     // マージしたPRまたは指定したPRを取得
@@ -106,9 +109,8 @@ const fetchPRs = async (owner, repo, prNumbers) => {
   return allPRs;
 };
 
-// 取得したPR情報を加工する関数
 const processPRs = async (allPRs) => {
-  return allPRs
+  const mergedPRs = allPRs
     .map((pr) => {
       // authorがないのはCloseされたPRの可能性があるのでスキップ
       if (pr.author === null) return null;
@@ -149,6 +151,11 @@ const processPRs = async (allPRs) => {
     })
     .filter((pr) => pr !== null) // スキップしたnullをフィルタリングして削除
     .sort((a, b) => a.number - b.number);
+  if (mergedPRs.length === 0) {
+    throw new Error("No merged PRs found");
+  }
+  console.log("mergedPRs:", mergedPRs.length, "件");
+  return mergedPRs;
 };
 
 const postData = async (data) => {
@@ -195,27 +202,23 @@ const postData = async (data) => {
 };
 
 const run = async () => {
-  const owner = process.env.GITHUB_REPO_OWNER;
-  const repo = process.env.GITHUB_REPO_NAME;
-
-  const prNumbersInput = process.env.PR_NUMBERS;
+  const inputPrNumbers = process.env.PR_NUMBERS;
   let prNumbers = [];
 
-  if (prNumbersInput) {
-    if (!isCommaSeparatedNumbers(prNumbersInput)) {
+  if (inputPrNumbers) {
+    if (!isCommaSeparatedNumbers(inputPrNumbers)) {
       throw new Error(
-        `Invalid PR_NUMBERS: ${prNumbersInput} is not a valid comma-separated numbers string`,
+        `Invalid PR_NUMBERS: ${inputPrNumbers} is not a valid comma-separated numbers string`,
       );
     }
-    prNumbers = prNumbersInput
+    prNumbers = inputPrNumbers
       .split(",")
       .map((num) => Number.parseInt(num.trim(), 10));
   }
 
   try {
-    const allPRs = await fetchPRs(owner, repo, prNumbers);
+    const allPRs = await fetchPRs(prNumbers);
     const mergedPRs = await processPRs(allPRs);
-    console.log("mergedPRs:", mergedPRs.length, "件");
     await postData(mergedPRs);
   } catch (error) {
     console.error("Error during script execution:", error);

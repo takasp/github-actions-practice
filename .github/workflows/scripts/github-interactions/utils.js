@@ -1,8 +1,22 @@
 import { graphql } from "@octokit/graphql";
+import { Octokit } from "@octokit/rest";
+
+const githubToken = process.env.GITHUB_TOKEN;
+const octokit = new Octokit({ auth: githubToken });
+
+const restWithAuth = async (method, params) => {
+  try {
+    const response = await octokit.rest.actions[method](params);
+    return response.data;
+  } catch (error) {
+    console.error(`Error calling ${method}:`, error);
+    throw error; // エラーを再スローして、呼び出し元で処理できるようにする
+  }
+};
 
 const graphqlWithAuth = graphql.defaults({
   headers: {
-    authorization: `token ${process.env.GITHUB_TOKEN}`,
+    authorization: `token ${githubToken}`,
   },
 });
 
@@ -31,4 +45,10 @@ const isCommaSeparatedNumbers = (input) => {
   );
 };
 
-export { graphqlWithAuth, toJSTString, getMinDate, isCommaSeparatedNumbers };
+export {
+  restWithAuth,
+  graphqlWithAuth,
+  toJSTString,
+  getMinDate,
+  isCommaSeparatedNumbers,
+};
