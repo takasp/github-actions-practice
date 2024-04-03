@@ -12,7 +12,7 @@ const restWithAuth = async (method, params) => {
     return response.data;
   } catch (error) {
     console.error(`Error calling ${method}:`, error);
-    throw error; // エラーを再スローして、呼び出し元で処理できるようにする
+    throw error;
   }
 };
 
@@ -40,11 +40,21 @@ const getMinDate = (dates) => {
     ? new Date(Math.min(...validDates.map((date) => new Date(date))))
     : null;
 };
+
 const isCommaSeparatedNumbers = (input) => {
-  const parts = input.split(",");
-  return parts.every(
-    (part) => !Number.isNaN(Number.parseFloat(part)) && Number.isFinite(part),
-  );
+  if (input.trim() === '') {
+    return false;
+  }
+
+  const parts = input.split(',');
+  return parts.every(part => {
+    const trimmedPart = part.trim();
+    if (trimmedPart === '') {
+      return false; // 連続したカンマや、カンマの前後に空文字がある場合は不正なフォーマットと見なす
+    }
+    const number = parseFloat(trimmedPart);
+    return !isNaN(number) && isFinite(number); // トリムした部分が数値に変換可能かどうかをチェック
+  });
 };
 
 export {
