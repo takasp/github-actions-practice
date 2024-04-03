@@ -63,6 +63,7 @@ const fetchWorkflows = async (eventName, workflowId, inputRunIds) => {
       page++;
     }
   } else if (eventName === "workflow_run") {
+    // TODO なおす
     console.log(
       "context.payload.workflow_run.id:",
       context.payload.workflow_run.id,

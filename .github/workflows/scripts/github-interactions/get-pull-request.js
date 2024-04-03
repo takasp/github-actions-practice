@@ -203,6 +203,7 @@ const postData = async (data) => {
 
 const run = async () => {
   const inputPrNumbers = process.env.PR_NUMBERS;
+  // TODO context.payload.pull_request.numberも対応が必要
   let prNumbers = [];
 
   if (inputPrNumbers) {
