@@ -45,7 +45,7 @@ const fetchWorkflows = async (eventName, workflowId, inputRunIds) => {
     let page = 1;
     while (true) {
       const {
-        data: { workflow_runs },
+        data,
       } = await restWithAuth("listWorkflowRuns", {
         owner,
         repo,
@@ -54,12 +54,13 @@ const fetchWorkflows = async (eventName, workflowId, inputRunIds) => {
         per_page: perPage,
         page: page,
       });
+      console.log("data:",JSON.stringify(data));
 
-      if (workflow_runs.length === 0) {
+      if (data.workflow_runs.length === 0) {
         break;
       }
 
-      allWorkflowRuns.push(...workflow_runs);
+      allWorkflowRuns.push(...data.workflow_runs);
       page++;
     }
   } else if (eventName === "workflow_run") {
