@@ -54,7 +54,6 @@ const fetchWorkflows = async (eventName, workflowId, inputRunIds) => {
         per_page: perPage,
         page: page,
       });
-      console.log("data:",JSON.stringify(data));
 
       if (workflow_runs.length === 0) {
         break;
