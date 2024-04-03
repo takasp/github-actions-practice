@@ -42,18 +42,18 @@ const getMinDate = (dates) => {
 };
 
 const isCommaSeparatedNumbers = (input) => {
-  if (input.trim() === '') {
+  if (input.trim() === "") {
     return false;
   }
 
-  const parts = input.split(',');
-  return parts.every(part => {
+  const parts = input.split(",");
+  return parts.every((part) => {
     const trimmedPart = part.trim();
-    if (trimmedPart === '') {
+    if (trimmedPart === "") {
       return false; // 連続したカンマや、カンマの前後に空文字がある場合は不正なフォーマットと見なす
     }
-    const number = parseFloat(trimmedPart);
-    return !isNaN(number) && isFinite(number); // トリムした部分が数値に変換可能かどうかをチェック
+    const number = Number.parseFloat(trimmedPart);
+    return !Number.isNaN(number) && Number.isFinite(number); // トリムした部分が数値に変換可能かどうかをチェック
   });
 };
 
