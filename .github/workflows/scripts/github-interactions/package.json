@@ -1,24 +1,26 @@
 {
-  "name": "github-interactions",
-  "version": "1.0.0",
-  "description": "",
-  "type": "module",
-  "main": "get-pull-request.js",
-  "scripts": {
-    "start:pull-request": "node get-pull-request.js",
-    "start:workflow": "node get-workflow.js",
-    "test": "node --test",
-    "fmt": "biome format --write .",
-    "lint": "biome lint ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@octokit/graphql": "^8.0.1",
-    "@octokit/rest": "^20.0.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.6.3"
-  }
+	"name": "github-interactions",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"main": "get-pull-request.js",
+	"scripts": {
+		"start:pull-request": "node get-pull-request.js",
+		"start:workflow": "node get-workflow.js",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"fmt": "biome format --write .",
+		"lint": "biome lint ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@octokit/graphql": "^8.0.1",
+		"@octokit/rest": "^20.0.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.6.3",
+		"@jest/globals": "^29.7.0",
+		"jest": "^29.7.0"
+	}
 }
