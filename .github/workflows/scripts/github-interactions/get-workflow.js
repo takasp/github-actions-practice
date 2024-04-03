@@ -44,9 +44,7 @@ const fetchWorkflows = async (eventName, workflowId, inputRunIds) => {
     const perPage = 100;
     let page = 1;
     while (true) {
-      const {
-        workflow_runs,
-      } = await restWithAuth("listWorkflowRuns", {
+      const { workflow_runs } = await restWithAuth("listWorkflowRuns", {
         owner,
         repo,
         workflow_id: workflowId,

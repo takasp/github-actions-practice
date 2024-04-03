@@ -7,7 +7,7 @@
   "scripts": {
     "start:pull-request": "node get-pull-request.js",
     "start:workflow": "node get-workflow.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test",
     "fmt": "biome format --write .",
     "lint": "biome lint ."
   },
