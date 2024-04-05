@@ -11,10 +11,15 @@
     "test:watch": "vitest watch",
     "fmt": "biome format --write .",
     "lint": "biome lint .",
+    "lint:fix": "biome check --apply .",
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.js": "npm run fmt && npm run lint && npm run test"
+    "*.js": [
+      "biome format --write",
+      "biome check --apply",
+      "vitest run"
+    ]
   },
   "keywords": [],
   "author": "",
