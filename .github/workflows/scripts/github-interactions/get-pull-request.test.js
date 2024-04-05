@@ -1,29 +1,83 @@
-import assert from "node:assert";
+import { describe, expect, test, vi } from "vitest";
+import { fetchPRs } from "./get-pull-request.js";
 
-process.env.GITHUB_REPO_OWNER = "testOwner";
-process.env.GITHUB_REPO_NAME = "testRepo";
+vi.mock("./utils.js", async (importOriginal) => {
+	const actual = await importOriginal();
+	return {
+		...actual,
+		graphqlWithAuth: vi.fn().mockImplementation((query, variables) => {
+			const mockData = {
+				repository: {
+					pullRequests: {
+						edges: [
+							{
+								node: {
+									number: 1,
+									createdAt: "2021-01-01T00:00:00Z",
+									mergedAt: "2021-01-02T00:00:00Z",
+									baseRefName: "main",
+									headRefName: "feature-branch",
+									author: {
+										login: "user1",
+									},
+									repository: {
+										nameWithOwner: "exampleOwner/exampleRepo",
+									},
+									commits: {
+										nodes: [
+											{
+												commit: {
+													authoredDate: "2021-01-01T01:00:00Z",
+													committedDate: "2021-01-01T02:00:00Z",
+												},
+											},
+										],
+									},
+								},
+							},
+							{
+								node: {
+									number: 2,
+									createdAt: "2021-02-01T00:00:00Z",
+									mergedAt: "2021-02-02T00:00:00Z",
+									baseRefName: "main",
+									headRefName: "bugfix-branch",
+									author: {
+										login: "user2",
+									},
+									repository: {
+										nameWithOwner: "exampleOwner/exampleRepo",
+									},
+									commits: {
+										nodes: [
+											{
+												commit: {
+													authoredDate: "2021-02-01T01:00:00Z",
+													committedDate: "2021-02-01T02:00:00Z",
+												},
+											},
+										],
+									},
+								},
+							},
+						],
+						pageInfo: {
+							endCursor: "cursor2",
+							hasNextPage: false,
+						},
+					},
+				},
+			};
 
-import { jest } from "@jest/globals";
-import { graphql } from "@octokit/graphql";
-import { fetchPRs, run } from "./get-pull-request.js";
-import * as utils from "./utils.js";
-
-jest.unstable_mockModule("graphql", () => ({
-	defaults: () =>
-		jest.fn().mockImplementation((query, variables) => {
-			// if (variables.owner === "testOwner" && variables.repo === "testRepo") {
-			// }
-			return Promise.resolve({ data: "mockData" }); // モックの応答
+			return Promise.resolve(mockData);
 		}),
-}));
+	};
+});
 
 describe("get-pull-request", () => {
 	test("graphqlWithAuthを使ってデータを正しくフェッチする", async () => {
-		const cursor = "testCursor";
-
-		// fetchData関数の実行と結果の検証
-		const result = await fetchPRs([1, 2, 3]);
-		expect(result).toEqual({ data: "mockData" }); // モックから期待される結果
+		const result = await fetchPRs([]);
+		expect(result.length).toEqual(2); // モックから期待される結果
 		// run();
 	});
 });

@@ -227,4 +227,7 @@ export const run = async () => {
 	}
 };
 
-run();
+const args = process.argv.slice(2);
+if (args[0] === "run") {
+	run().then((r) => console.info("get-pull-request completed"));
+}

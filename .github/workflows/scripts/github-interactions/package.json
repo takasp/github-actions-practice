@@ -5,9 +5,10 @@
 	"type": "module",
 	"main": "get-pull-request.js",
 	"scripts": {
-		"start:pull-request": "node get-pull-request.js",
+		"start:pull-request": "node get-pull-request.js run",
 		"start:workflow": "node get-workflow.js",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test": "vitest run",
+		"test:watch": "vitest watch",
 		"fmt": "biome format --write .",
 		"lint": "biome lint ."
 	},
@@ -20,7 +21,6 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.6.3",
-		"@jest/globals": "^29.7.0",
-		"jest": "^29.7.0"
+		"vitest": "^1.4.0"
 	}
 }
