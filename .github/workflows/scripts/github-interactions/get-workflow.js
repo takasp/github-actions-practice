@@ -1,4 +1,4 @@
-import { restWithAuth, isCommaSeparatedNumbers, toJSTString } from "./utils.js";
+import { isCommaSeparatedNumbers, restWithAuth, toJSTString } from "./utils.js";
 
 const fetchWorkflows = async (eventName, workflowId, inputRunIds) => {
   const owner = process.env.GITHUB_REPO_OWNER;
