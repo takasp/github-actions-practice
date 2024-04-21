@@ -175,6 +175,7 @@ const postData = async (data) => {
       formData.append("entry.1775356616", pr.head);
       formData.append("entry.1457774321", pr.jst_merged_at);
       formData.append("entry.1401680068", pr.jst_first_created);
+      console.log(formData);
       const response = await fetch(url, {
         method: "POST",
         headers: {

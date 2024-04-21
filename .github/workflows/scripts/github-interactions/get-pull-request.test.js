@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { fetchPRs, run } from "./get-pull-request.js";
 
 vi.mock("./utils.js", async (importOriginal) => {
@@ -75,16 +75,52 @@ vi.mock("./utils.js", async (importOriginal) => {
 });
 
 describe("get-pull-request", () => {
+  let mockFetch;
+
+  beforeEach(() => {
+    vi.stubEnv("LEAD_TIME_URL", "https://example.com/");
+    mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+    });
+  });
+
+  afterEach(() => {
+    mockFetch.mockRestore();
+    vi.unstubAllEnvs();
+  });
+
   test("graphqlWithAuthを使ってデータをフェッチする", async () => {
+    // given
+
+    // when
     const result = await fetchPRs([]);
+
+    // then
     expect(result.length).toEqual(2); // モックから期待される結果
   });
   test("runの長いテスト", async () => {
-    const mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
-      ok: true,
-    });
+    // given
+
+    // when
     await run();
 
-    mockFetch.mockRestore();
+    // then
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+
+    const firstCallArgs = mockFetch.mock.calls[0];
+    expect(firstCallArgs[0]).toStrictEqual(expect.any(String)); // URL
+    expect(firstCallArgs[1].method).toBe("POST");
+    expect(firstCallArgs[1].body.get("entry.1737429438")).toBe("1");
+    expect(firstCallArgs[1].headers).toStrictEqual({
+      "Content-Type": "application/x-www-form-urlencoded",
+    });
+
+    const secondCallArgs = mockFetch.mock.calls[1];
+    expect(secondCallArgs[0]).toStrictEqual(expect.any(String)); // URL
+    expect(secondCallArgs[1].method).toBe("POST");
+    expect(secondCallArgs[1].body.get("entry.1737429438")).toBe("2");
+    expect(secondCallArgs[1].headers).toStrictEqual({
+      "Content-Type": "application/x-www-form-urlencoded",
+    });
   });
 });
