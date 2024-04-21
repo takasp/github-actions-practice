@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { fetchPRs } from "./get-pull-request.js";
+import { fetchPRs, run } from "./get-pull-request.js";
 
 vi.mock("./utils.js", async (importOriginal) => {
   const actual = await importOriginal();
@@ -75,9 +75,16 @@ vi.mock("./utils.js", async (importOriginal) => {
 });
 
 describe("get-pull-request", () => {
-  test("graphqlWithAuthを使ってデータを正しくフェッチする", async () => {
+  test("graphqlWithAuthを使ってデータをフェッチする", async () => {
     const result = await fetchPRs([]);
     expect(result.length).toEqual(2); // モックから期待される結果
-    // run();
+  });
+  test("runの長いテスト", async () => {
+    const mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+    });
+    await run();
+
+    mockFetch.mockRestore();
   });
 });

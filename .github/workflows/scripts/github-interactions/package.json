@@ -15,11 +15,7 @@
     "prepare": "cd ../../../.. && husky .github/workflows/scripts/github-interactions/.husky"
   },
   "lint-staged": {
-    "*.js": [
-      "biome format --write",
-      "biome check --apply",
-      "vitest run"
-    ]
+    "*.js": ["biome format --write", "biome check --apply", "vitest run"]
   },
   "keywords": [],
   "author": "",
