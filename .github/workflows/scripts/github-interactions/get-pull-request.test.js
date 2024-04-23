@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { fetchPRs, processPRs, run } from "./get-pull-request.js";
+import { fetchPRs, postData, processPRs, run } from "./get-pull-request.js";
+
+vi.stubEnv("LEAD_TIME_URL", "https://example.com/");
 
 describe("run", () => {
   let mockFetch;
@@ -78,7 +80,6 @@ describe("run", () => {
       };
     });
 
-    vi.stubEnv("LEAD_TIME_URL", "https://example.com/");
     mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
     });
@@ -86,7 +87,6 @@ describe("run", () => {
 
   afterEach(() => {
     mockFetch.mockRestore();
-    vi.unstubAllEnvs();
   });
   test("runの長いテスト", async () => {
     // given
@@ -192,7 +192,6 @@ describe("fetchPRs", () => {
       };
     });
 
-    vi.stubEnv("LEAD_TIME_URL", "https://example.com/");
     mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
     });
@@ -200,7 +199,6 @@ describe("fetchPRs", () => {
 
   afterEach(() => {
     mockFetch.mockRestore();
-    vi.unstubAllEnvs();
   });
 
   test("graphqlWithAuthを使ってデータをフェッチする", async () => {
@@ -432,5 +430,81 @@ describe("processPRs", () => {
 
     // when & then
     await expect(processPRs([])).rejects.toThrow("No merged PRs found");
+  });
+});
+
+describe("postData", () => {
+  let mockFetch;
+
+  beforeEach(() => {
+    mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+    });
+  });
+
+  afterEach(() => {
+    mockFetch.mockRestore();
+  });
+
+  test("postDataがデータをPOSTできること", async () => {
+    // given
+    const mockData = [
+      {
+        number: 1,
+        created_at: "2022-01-01T00:00:00Z",
+        merged_at: "2022-01-02T00:00:00Z",
+        first_commit_at: "2022-01-01T02:00:00Z",
+        first_commit_author_date: "2022-01-01T01:00:00Z",
+        repository: "exampleOwner/exampleRepo",
+        author: "user1",
+        base: "main",
+        head: "feature-branch",
+        jst_merged_at: "2022/01/02 09:00",
+        jst_first_created: "2022/01/01 09:00",
+      },
+    ];
+
+    // when
+    await postData(mockData);
+
+    // then
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    const callArgs = mockFetch.mock.calls[0];
+    expect(callArgs[0]).toStrictEqual(expect.any(String)); // URL
+    expect(callArgs[1].method).toBe("POST");
+    expect(callArgs[1].body.get("entry.1737429438")).toBe("1");
+    expect(callArgs[1].headers).toStrictEqual({
+      "Content-Type": "application/x-www-form-urlencoded",
+    });
+  });
+
+  test("エラー発生時にエラーがスローされる", async () => {
+    // given
+    const mockData = [
+      {
+        number: 1,
+        created_at: "2022-01-01T00:00:00Z",
+        merged_at: "2022-01-02T00:00:00Z",
+        first_commit_at: "2022-01-01T02:00:00Z",
+        first_commit_author_date: "2022-01-01T01:00:00Z",
+        repository: "exampleOwner/exampleRepo",
+        author: "user1",
+        base: "main",
+        head: "feature-branch",
+        jst_merged_at: "2022/01/02 09:00",
+        jst_first_created: "2022/01/01 09:00",
+      },
+    ];
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 400,
+      text: () => Promise.resolve("Bad Request"),
+    });
+
+    // when & then
+    await expect(postData(mockData)).rejects.toThrow(
+      "One or more errors occurred during processing.",
+    );
   });
 });

@@ -158,7 +158,7 @@ export const processPRs = async (allPRs) => {
   return mergedPRs;
 };
 
-const postData = async (data) => {
+export const postData = async (data) => {
   const url = process.env.LEAD_TIME_URL;
   let errorOccurred = false;
   for (const pr of data) {
