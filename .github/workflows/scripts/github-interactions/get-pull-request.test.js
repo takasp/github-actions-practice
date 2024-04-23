@@ -158,7 +158,16 @@ describe("processPRs", () => {
     const result = await processPRs(mockPRs);
 
     // then
-    expect(result[0].jst_first_created).toEqual("2022/01/01 09:00"); // createdAtが最も早い日付
+    expect(result[0].number).toEqual(1);
+    expect(result[0].created_at).toEqual("2022-01-01T00:00:00Z");
+    expect(result[0].merged_at).toEqual("2022-01-02T00:00:00Z");
+    expect(result[0].first_commit_at).toEqual("2022-01-01T02:00:00Z");
+    expect(result[0].first_commit_author_date).toEqual("2022-01-01T01:00:00Z");
+    expect(result[0].repository).toEqual("exampleOwner/exampleRepo");
+    expect(result[0].base).toEqual("main");
+    expect(result[0].head).toEqual("feature-branch");
+    expect(result[0].jst_merged_at).toEqual("2022/01/02 09:00");
+    expect(result[0].jst_first_created).toEqual("2022/01/01 09:00");
   });
 
   test("マージされたPRが0件のときエラーがスローされる", async () => {
