@@ -3,85 +3,88 @@ import { fetchPRs, postData, processPRs, run } from "./get-pull-request.js";
 
 vi.stubEnv("LEAD_TIME_URL", "https://example.com/");
 
+const { graphqlWithAuthMock } = vi.hoisted(() => {
+  return {
+    graphqlWithAuthMock: vi.fn(),
+  };
+});
+vi.mock("./utils.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    graphqlWithAuth: graphqlWithAuthMock,
+  };
+});
+
 describe("run", () => {
   let mockFetch;
 
   beforeEach(() => {
-    vi.mock("./utils.js", async (importOriginal) => {
-      const actual = await importOriginal();
-      return {
-        ...actual,
-        graphqlWithAuth: vi.fn().mockImplementation((query, variables) => {
-          const mockData = {
-            repository: {
-              pullRequests: {
-                edges: [
-                  {
-                    node: {
-                      number: 1,
-                      createdAt: "2021-01-01T00:00:00Z",
-                      mergedAt: "2021-01-02T00:00:00Z",
-                      baseRefName: "main",
-                      headRefName: "feature-branch",
-                      author: {
-                        login: "user1",
-                      },
-                      repository: {
-                        nameWithOwner: "exampleOwner/exampleRepo",
-                      },
-                      commits: {
-                        nodes: [
-                          {
-                            commit: {
-                              authoredDate: "2021-01-01T01:00:00Z",
-                              committedDate: "2021-01-01T02:00:00Z",
-                            },
-                          },
-                        ],
-                      },
-                    },
+    graphqlWithAuthMock.mockImplementation((query, variables) => {
+      const mockData = {
+        repository: {
+          pullRequests: {
+            edges: [
+              {
+                node: {
+                  number: 1,
+                  createdAt: "2021-01-01T00:00:00Z",
+                  mergedAt: "2021-01-02T00:00:00Z",
+                  baseRefName: "main",
+                  headRefName: "feature-branch",
+                  author: {
+                    login: "user1",
                   },
-                  {
-                    node: {
-                      number: 2,
-                      createdAt: "2021-02-01T00:00:00Z",
-                      mergedAt: "2021-02-02T00:00:00Z",
-                      baseRefName: "main",
-                      headRefName: "bugfix-branch",
-                      author: {
-                        login: "user2",
-                      },
-                      repository: {
-                        nameWithOwner: "exampleOwner/exampleRepo",
-                      },
-                      commits: {
-                        nodes: [
-                          {
-                            commit: {
-                              authoredDate: "2021-02-01T01:00:00Z",
-                              committedDate: "2021-02-01T02:00:00Z",
-                            },
-                          },
-                        ],
-                      },
-                    },
+                  repository: {
+                    nameWithOwner: "exampleOwner/exampleRepo",
                   },
-                ],
-                pageInfo: {
-                  endCursor: "cursor2",
-                  hasNextPage: false,
+                  commits: {
+                    nodes: [
+                      {
+                        commit: {
+                          authoredDate: "2021-01-01T01:00:00Z",
+                          committedDate: "2021-01-01T02:00:00Z",
+                        },
+                      },
+                    ],
+                  },
                 },
               },
+              {
+                node: {
+                  number: 2,
+                  createdAt: "2021-02-01T00:00:00Z",
+                  mergedAt: "2021-02-02T00:00:00Z",
+                  baseRefName: "main",
+                  headRefName: "bugfix-branch",
+                  author: {
+                    login: "user2",
+                  },
+                  repository: {
+                    nameWithOwner: "exampleOwner/exampleRepo",
+                  },
+                  commits: {
+                    nodes: [
+                      {
+                        commit: {
+                          authoredDate: "2021-02-01T01:00:00Z",
+                          committedDate: "2021-02-01T02:00:00Z",
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: "cursor2",
+              hasNextPage: false,
             },
-          };
-
-          return Promise.resolve(mockData);
-        }),
+          },
+        },
       };
-    });
 
-    mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
-      ok: true,
+      return Promise.resolve(mockData);
     });
   });
 
@@ -90,6 +93,9 @@ describe("run", () => {
   });
   test("runの長いテスト", async () => {
     // given
+    mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+    });
 
     // when
     await run();
@@ -113,83 +119,87 @@ describe("run", () => {
       "Content-Type": "application/x-www-form-urlencoded",
     });
   });
+
+  test("runがエラーを適切にハンドリングできる", async () => {
+    // given
+    vi.spyOn(global, "fetch").mockRejectedValue(Error("Failed to fetch data"));
+
+    // when & then;
+    await expect(run()).rejects.toThrow(
+      'process.exit unexpectedly called with "1"',
+    );
+  });
 });
 
 describe("fetchPRs", () => {
   let mockFetch;
 
   beforeEach(() => {
-    vi.mock("./utils.js", async (importOriginal) => {
-      const actual = await importOriginal();
-      return {
-        ...actual,
-        graphqlWithAuth: vi.fn().mockImplementation((query, variables) => {
-          const mockData = {
-            repository: {
-              pullRequests: {
-                edges: [
-                  {
-                    node: {
-                      number: 1,
-                      createdAt: "2021-01-01T00:00:00Z",
-                      mergedAt: "2021-01-02T00:00:00Z",
-                      baseRefName: "main",
-                      headRefName: "feature-branch",
-                      author: {
-                        login: "user1",
-                      },
-                      repository: {
-                        nameWithOwner: "exampleOwner/exampleRepo",
-                      },
-                      commits: {
-                        nodes: [
-                          {
-                            commit: {
-                              authoredDate: "2021-01-01T01:00:00Z",
-                              committedDate: "2021-01-01T02:00:00Z",
-                            },
-                          },
-                        ],
-                      },
-                    },
+    graphqlWithAuthMock.mockImplementation((query, variables) => {
+      const mockData = {
+        repository: {
+          pullRequests: {
+            edges: [
+              {
+                node: {
+                  number: 1,
+                  createdAt: "2021-01-01T00:00:00Z",
+                  mergedAt: "2021-01-02T00:00:00Z",
+                  baseRefName: "main",
+                  headRefName: "feature-branch",
+                  author: {
+                    login: "user1",
                   },
-                  {
-                    node: {
-                      number: 2,
-                      createdAt: "2021-02-01T00:00:00Z",
-                      mergedAt: "2021-02-02T00:00:00Z",
-                      baseRefName: "main",
-                      headRefName: "bugfix-branch",
-                      author: {
-                        login: "user2",
-                      },
-                      repository: {
-                        nameWithOwner: "exampleOwner/exampleRepo",
-                      },
-                      commits: {
-                        nodes: [
-                          {
-                            commit: {
-                              authoredDate: "2021-02-01T01:00:00Z",
-                              committedDate: "2021-02-01T02:00:00Z",
-                            },
-                          },
-                        ],
-                      },
-                    },
+                  repository: {
+                    nameWithOwner: "exampleOwner/exampleRepo",
                   },
-                ],
-                pageInfo: {
-                  endCursor: "cursor2",
-                  hasNextPage: false,
+                  commits: {
+                    nodes: [
+                      {
+                        commit: {
+                          authoredDate: "2021-01-01T01:00:00Z",
+                          committedDate: "2021-01-01T02:00:00Z",
+                        },
+                      },
+                    ],
+                  },
                 },
               },
+              {
+                node: {
+                  number: 2,
+                  createdAt: "2021-02-01T00:00:00Z",
+                  mergedAt: "2021-02-02T00:00:00Z",
+                  baseRefName: "main",
+                  headRefName: "bugfix-branch",
+                  author: {
+                    login: "user2",
+                  },
+                  repository: {
+                    nameWithOwner: "exampleOwner/exampleRepo",
+                  },
+                  commits: {
+                    nodes: [
+                      {
+                        commit: {
+                          authoredDate: "2021-02-01T01:00:00Z",
+                          committedDate: "2021-02-01T02:00:00Z",
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: "cursor2",
+              hasNextPage: false,
             },
-          };
-
-          return Promise.resolve(mockData);
-        }),
+          },
+        },
       };
+
+      return Promise.resolve(mockData);
     });
 
     mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
@@ -208,7 +218,7 @@ describe("fetchPRs", () => {
     const result = await fetchPRs([]);
 
     // then
-    expect(result.length).toEqual(2); // モックから期待される結果
+    expect(result.length).toEqual(2);
   });
 });
 
