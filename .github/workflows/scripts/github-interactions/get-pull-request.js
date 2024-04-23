@@ -109,7 +109,7 @@ export const fetchPRs = async (prNumbers) => {
   return allPRs;
 };
 
-const processPRs = async (allPRs) => {
+export const processPRs = async (allPRs) => {
   const mergedPRs = allPRs
     .map((pr) => {
       // authorがないのはCloseされたPRの可能性があるのでスキップ
@@ -142,7 +142,7 @@ const processPRs = async (allPRs) => {
         first_commit_at: firstCommitAt,
         first_commit_author_date: firstCommitAuthoredAt,
         repository: pr.repository.nameWithOwner,
-        author: pr.author ? pr.author.login : "unknown",
+        author: pr.author.login,
         base: pr.baseRefName,
         head: pr.headRefName,
         jst_merged_at: toJSTString(pr.mergedAt),
