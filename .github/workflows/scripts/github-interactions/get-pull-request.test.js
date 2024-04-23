@@ -170,6 +170,174 @@ describe("processPRs", () => {
     expect(result[0].jst_first_created).toEqual("2022/01/01 09:00");
   });
 
+  test("PRのauthorがnullの場合、nullを返すため2件中1件取得できる", async () => {
+    // given
+    const mockPRs = [
+      {
+        number: 1,
+        createdAt: "2022-01-01T00:00:00Z",
+        mergedAt: "2022-01-02T00:00:00Z",
+        baseRefName: "main",
+        headRefName: "feature-branch",
+        author: null,
+        repository: {
+          nameWithOwner: "exampleOwner/exampleRepo",
+        },
+        commits: {
+          nodes: [
+            {
+              commit: {
+                authoredDate: "2022-01-01T01:00:00Z",
+                committedDate: "2022-01-01T02:00:00Z",
+              },
+            },
+          ],
+        },
+      },
+      {
+        number: 2,
+        createdAt: "2022-01-01T00:00:00Z",
+        mergedAt: "2022-01-02T00:00:00Z",
+        baseRefName: "main",
+        headRefName: "feature-branch",
+        author: {
+          login: "user1",
+        },
+        repository: {
+          nameWithOwner: "exampleOwner/exampleRepo",
+        },
+        commits: {
+          nodes: [
+            {
+              commit: {
+                authoredDate: "2022-01-01T01:00:00Z",
+                committedDate: "2022-01-01T02:00:00Z",
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    // when
+    const result = await processPRs(mockPRs);
+
+    // then
+    expect(result.length).toEqual(1);
+    expect(result[0].number).toEqual(2);
+  });
+
+  test("PRのcommitが存在しない場合、nullを返す2件中1件取得できる", async () => {
+    // given
+    const mockPRs = [
+      {
+        number: 1,
+        createdAt: "2022-01-01T00:00:00Z",
+        mergedAt: "2022-01-02T00:00:00Z",
+        baseRefName: "main",
+        headRefName: "feature-branch",
+        author: {
+          login: "user1",
+        },
+        repository: {
+          nameWithOwner: "exampleOwner/exampleRepo",
+        },
+        commits: {
+          nodes: [],
+        },
+      },
+      {
+        number: 2,
+        createdAt: "2022-01-01T00:00:00Z",
+        mergedAt: "2022-01-02T00:00:00Z",
+        baseRefName: "main",
+        headRefName: "feature-branch",
+        author: {
+          login: "user1",
+        },
+        repository: {
+          nameWithOwner: "exampleOwner/exampleRepo",
+        },
+        commits: {
+          nodes: [
+            {
+              commit: {
+                authoredDate: "2022-01-01T01:00:00Z",
+                committedDate: "2022-01-01T02:00:00Z",
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    // when
+    const result = await processPRs(mockPRs);
+
+    // then
+    expect(result.length).toEqual(1);
+    expect(result[0].number).toEqual(2);
+  });
+
+  test("PRのcreatedAt、firstCommitAt、またはfirstCommitAuthoredAtのいずれかが存在しない場合、nullを返す2件中1件取得できる", async () => {
+    // given
+    const mockPRs = [
+      {
+        number: 1,
+        createdAt: null,
+        mergedAt: "2022-01-02T00:00:00Z",
+        baseRefName: "main",
+        headRefName: "feature-branch",
+        author: {
+          login: "user1",
+        },
+        repository: {
+          nameWithOwner: "exampleOwner/exampleRepo",
+        },
+        commits: {
+          nodes: [
+            {
+              commit: {
+                authoredDate: "2022-01-01T01:00:00Z",
+                committedDate: "2022-01-01T02:00:00Z",
+              },
+            },
+          ],
+        },
+      },
+      {
+        number: 2,
+        createdAt: "2022-01-01T00:00:00Z",
+        mergedAt: "2022-01-02T00:00:00Z",
+        baseRefName: "main",
+        headRefName: "feature-branch",
+        author: {
+          login: "user1",
+        },
+        repository: {
+          nameWithOwner: "exampleOwner/exampleRepo",
+        },
+        commits: {
+          nodes: [
+            {
+              commit: {
+                authoredDate: "2022-01-01T01:00:00Z",
+                committedDate: "2022-01-01T02:00:00Z",
+              },
+            },
+          ],
+        },
+      },
+    ];
+
+    // when
+    const result = await processPRs(mockPRs);
+
+    // then
+    expect(result.length).toEqual(1);
+    expect(result[0].number).toEqual(2);
+  });
+
   test("マージされたPRが0件のときエラーがスローされる", async () => {
     // given
 
