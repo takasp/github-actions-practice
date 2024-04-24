@@ -86,8 +86,10 @@ describe("run", () => {
 
   afterEach(() => {
     mockFetch.mockRestore();
+    graphqlWithAuthMock.mockClear();
   });
-  test("runの長いテスト", async () => {
+
+  test("マージされたPRを取得し、外部にリクエストできる", async () => {
     // given
     mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
@@ -116,7 +118,7 @@ describe("run", () => {
     });
   });
 
-  test("runがエラーを適切にハンドリングできる", async () => {
+  test("エラーが発生した場合ハンドリングできる", async () => {
     // given
     vi.spyOn(global, "fetch").mockRejectedValue(Error("Failed to fetch data"));
 
@@ -131,6 +133,60 @@ describe("fetchPRs", () => {
   let mockFetch;
 
   beforeEach(() => {
+    mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+    });
+  });
+
+  afterEach(() => {
+    mockFetch.mockRestore();
+    graphqlWithAuthMock.mockClear();
+  });
+
+  test("prNumbersを指定した場合はPR番号指定で取得できないので一件ずつ取得する", async () => {
+    // given
+    const prNumbers = [1, 2];
+    const mockPRs = [
+      {
+        number: 1,
+        mergedAt: "2022-01-01T00:00:00Z",
+        // ... 他のプロパティは省略
+      },
+      {
+        number: 2,
+        mergedAt: "2022-01-01T00:00:00Z",
+        // ... 他のプロパティは省略
+      },
+    ];
+
+    graphqlWithAuthMock
+      .mockResolvedValueOnce({
+        repository: {
+          pullRequest: mockPRs[0],
+        },
+      })
+      .mockResolvedValueOnce({
+        repository: {
+          pullRequest: mockPRs[1],
+        },
+      });
+
+    // when
+    const result = await fetchPRs(prNumbers);
+
+    // then
+    expect(result).toEqual(mockPRs);
+    expect(graphqlWithAuthMock).toHaveBeenCalledTimes(2);
+
+    const firstCallArgs = graphqlWithAuthMock.mock.calls[0][1];
+    expect(firstCallArgs.number).toBe(prNumbers[0]);
+
+    const secondCallArgs = graphqlWithAuthMock.mock.calls[1][1];
+    expect(secondCallArgs.number).toBe(prNumbers[1]);
+  });
+
+  test("prNumbersを指定しない場合は全件取得する", async () => {
+    // given
     graphqlWithAuthMock.mockReturnValue({
       repository: {
         pullRequests: {
@@ -138,51 +194,15 @@ describe("fetchPRs", () => {
             {
               node: {
                 number: 1,
-                createdAt: "2021-01-01T00:00:00Z",
                 mergedAt: "2021-01-02T00:00:00Z",
-                baseRefName: "main",
-                headRefName: "feature-branch",
-                author: {
-                  login: "user1",
-                },
-                repository: {
-                  nameWithOwner: "exampleOwner/exampleRepo",
-                },
-                commits: {
-                  nodes: [
-                    {
-                      commit: {
-                        authoredDate: "2021-01-01T01:00:00Z",
-                        committedDate: "2021-01-01T02:00:00Z",
-                      },
-                    },
-                  ],
-                },
+                // ... 他のプロパティは省略
               },
             },
             {
               node: {
                 number: 2,
-                createdAt: "2021-02-01T00:00:00Z",
                 mergedAt: "2021-02-02T00:00:00Z",
-                baseRefName: "main",
-                headRefName: "bugfix-branch",
-                author: {
-                  login: "user2",
-                },
-                repository: {
-                  nameWithOwner: "exampleOwner/exampleRepo",
-                },
-                commits: {
-                  nodes: [
-                    {
-                      commit: {
-                        authoredDate: "2021-02-01T01:00:00Z",
-                        committedDate: "2021-02-01T02:00:00Z",
-                      },
-                    },
-                  ],
-                },
+                // ... 他のプロパティは省略
               },
             },
           ],
@@ -194,18 +214,6 @@ describe("fetchPRs", () => {
       },
     });
 
-    mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
-      ok: true,
-    });
-  });
-
-  afterEach(() => {
-    mockFetch.mockRestore();
-  });
-
-  test("graphqlWithAuthを使ってデータをフェッチする", async () => {
-    // given
-
     // when
     const result = await fetchPRs([]);
 
@@ -215,7 +223,7 @@ describe("fetchPRs", () => {
 });
 
 describe("processPRs", () => {
-  test("PRの作成日、最初のコミット日、最初のコミットのAuthorDateの中で最も早い日付がjst_first_createdとして返される", async () => {
+  test("PRを渡すと外部にリクエストするための形式に整形できる", async () => {
     // given
     const mockPRs = [
       {
@@ -259,7 +267,7 @@ describe("processPRs", () => {
     expect(result[0].jst_first_created).toEqual("2022/01/01 09:00");
   });
 
-  test("PRのauthorがnullの場合、nullを返すため2件中1件取得できる", async () => {
+  test("二件中一件のPRのauthorがnullの場合、nullを返すため一件だけ取得できる", async () => {
     // given
     const mockPRs = [
       {
@@ -316,7 +324,7 @@ describe("processPRs", () => {
     expect(result[0].number).toEqual(2);
   });
 
-  test("PRのcommitが存在しない場合、nullを返す2件中1件取得できる", async () => {
+  test("二件中一件のPRのcommitが存在しない場合、nullを返すため一件だけ取得できる", async () => {
     // given
     const mockPRs = [
       {
@@ -368,7 +376,7 @@ describe("processPRs", () => {
     expect(result[0].number).toEqual(2);
   });
 
-  test("PRのcreatedAt、firstCommitAt、またはfirstCommitAuthoredAtのいずれかが存在しない場合、nullを返す2件中1件取得できる", async () => {
+  test("二件中一件のPRのcreatedAt、firstCommitAt、またはfirstCommitAuthoredAtのいずれかが存在しない場合、nullを返すため一件だけ取得できる", async () => {
     // given
     const mockPRs = [
       {
@@ -448,7 +456,7 @@ describe("postData", () => {
     mockFetch.mockRestore();
   });
 
-  test("postDataがデータをPOSTできること", async () => {
+  test("データを外部にリクエストできる", async () => {
     // given
     const mockData = [
       {
