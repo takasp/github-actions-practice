@@ -134,7 +134,7 @@ describe("fetchPRs", () => {
     graphqlWithAuthMock.mockClear();
   });
 
-  test("prNumbersを指定した場合はPR番号指定で取得できないので一件ずつ取得する", async () => {
+  test("prNumbersを指定した場合はPR番号指定で複数件まとめて一度に取得できないので一件ずつ取得する", async () => {
     // given
     const prNumbers = [1, 2];
     const mockPRs = [
@@ -178,6 +178,7 @@ describe("fetchPRs", () => {
 
   test("prNumbersを指定しない場合は全件取得する", async () => {
     // given
+
     graphqlWithAuthMock.mockReturnValue({
       repository: {
         pullRequests: {
