@@ -130,16 +130,7 @@ describe("run", () => {
 });
 
 describe("fetchPRs", () => {
-  let mockFetch;
-
-  beforeEach(() => {
-    mockFetch = vi.spyOn(global, "fetch").mockResolvedValue({
-      ok: true,
-    });
-  });
-
   afterEach(() => {
-    mockFetch.mockRestore();
     graphqlWithAuthMock.mockClear();
   });
 
