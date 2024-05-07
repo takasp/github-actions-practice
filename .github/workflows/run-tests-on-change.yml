@@ -1,0 +1,33 @@
+name: Run tests on changes in github-interactions
+
+on:
+  push:
+    paths:
+      - '.github/workflows/scripts/github-interactions/**'
+  pull_request:
+    paths:
+      - '.github/workflows/scripts/github-interactions/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .github/workflows/scripts/github-interactions
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
