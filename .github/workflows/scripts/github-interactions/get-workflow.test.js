@@ -108,7 +108,6 @@ describe("fetchWorkflows", () => {
 
   test("runIdsを指定した場合はrunId指定で複数件まとめて一度に取得できないので一件ずつ取得する", async () => {
     // given
-    const eventName = "workflow_dispatch";
     const workflowId = "hadolint.yml";
     const runIds = [30433642, 31533642];
 
@@ -134,7 +133,7 @@ describe("fetchWorkflows", () => {
     });
 
     // when
-    const result = await fetchWorkflows(eventName, workflowId, runIds);
+    const result = await fetchWorkflows(workflowId, runIds);
 
     // then
     expect(result).toEqual(mockWorkflows);
@@ -149,7 +148,6 @@ describe("fetchWorkflows", () => {
 
   test("runIdsを指定しない場合は全件取得する", async () => {
     // given
-    const eventName = "workflow_dispatch";
     const workflowId = "hadolint.yml";
 
     restWithAuthMock.mockResolvedValueOnce({
@@ -171,7 +169,7 @@ describe("fetchWorkflows", () => {
     restWithAuthMock.mockReturnValue({ total_count: 0, workflow_runs: [] });
 
     // when
-    const result = await fetchWorkflows(eventName, workflowId, []);
+    const result = await fetchWorkflows(workflowId, []);
 
     // then
     expect(result.length).toEqual(2);

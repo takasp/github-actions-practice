@@ -1,6 +1,6 @@
 import { isCommaSeparatedNumbers, restWithAuth, toJSTString } from "./utils.js";
 
-export const fetchWorkflows = async (eventName, workflowId, runIds) => {
+export const fetchWorkflows = async (workflowId, runIds) => {
   const owner = process.env.GITHUB_REPO_OWNER;
   const repo = process.env.GITHUB_REPO_NAME;
 
@@ -99,8 +99,6 @@ export const postData = async (data) => {
 };
 
 export const run = async () => {
-  const eventName = process.env.EVENT_NAME;
-
   // TODO context.payload.workflow_run.idの対応も必要
   const workflowId = "hadolint.yml"; // IDではなく、workflowファイル名も指定できる
   const inputRunIds = process.env.RUN_IDS;
@@ -120,7 +118,7 @@ export const run = async () => {
   }
 
   try {
-    const allWorkflowRuns = await fetchWorkflows(eventName, workflowId, runIds);
+    const allWorkflowRuns = await fetchWorkflows(workflowId, runIds);
     const deploymentFrequencyRawList =
       await processWorkflowRuns(allWorkflowRuns);
     await postData(deploymentFrequencyRawList);
