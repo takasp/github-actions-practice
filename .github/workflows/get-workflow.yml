@@ -28,7 +28,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --omit=dev
 
       - name: Get Workflow run ids by workflow_dispatch with run_ids # ワークフロー実行でワークフロー実行番号が指定された場合はその番号を取得する
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_ids

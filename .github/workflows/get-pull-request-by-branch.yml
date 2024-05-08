@@ -26,7 +26,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --omit=dev
 
       - name: Get PR numbers by workflow_dispatch with pr_numbers # ワークフロー実行でPR番号が指定された場合はその番号を取得する
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.pr_numbers
