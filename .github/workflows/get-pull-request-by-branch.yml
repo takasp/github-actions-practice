@@ -35,14 +35,13 @@ jobs:
       - name: Get PR numbers by pull_request # PRがマージされた時は該当のPRの番号を取得する
         if: github.event_name == 'pull_request'
         run: |
-          echo "PR_NUMBERS=${{ context.payload.pull_request.number || '' }}" >> $GITHUB_ENV
+          echo "PR_NUMBERS=${{ github.payload.pull_request.number || '' }}" >> $GITHUB_ENV
       - name: echo vars
         run: |
           echo ${{ github.event.inputs.pr_numbers }}
           echo ${{ github.event.pull_request.merged }}
           echo ${{ github.payload }}
           echo ${{ github.payload.pull_request.number }}
-          echo ${{ context.payload.pull_request.number }}
 
       - name: Set repository owner and name as env
         run: |
