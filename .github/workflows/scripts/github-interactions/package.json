@@ -9,7 +9,8 @@
     "start:workflow": "node get-workflow.js run",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "fmt": "biome format --write .",
+    "fmt": "biome format .",
+    "fmt:fix": "biome format --write .",
     "lint": "biome lint .",
     "lint:fix": "biome check --apply .",
     "prepare": "cd $(git rev-parse --show-toplevel) && husky .github/workflows/scripts/github-interactions/.husky"
