@@ -154,7 +154,7 @@ export const processPRs = async (allPRs) => {
   if (mergedPRs.length === 0) {
     throw new Error("No merged PRs found");
   }
-  console.log("mergedPRs:", mergedPRs.length, "件");
+  console.info("mergedPRs:", mergedPRs.length, "件");
   return mergedPRs;
 };
 
@@ -214,6 +214,7 @@ export const run = async () => {
     prNumbers = inputPrNumbers
       .split(",")
       .map((num) => Number.parseInt(num.trim(), 10));
+    console.info("inputPrNumbers:", inputPrNumbers);
   }
 
   try {
