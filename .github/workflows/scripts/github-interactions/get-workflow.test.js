@@ -124,13 +124,9 @@ describe("fetchWorkflows", () => {
       },
     ];
 
-    restWithAuthMock.mockResolvedValueOnce({
-      data: mockWorkflows[0],
-    });
+    restWithAuthMock.mockResolvedValueOnce(mockWorkflows[0]);
 
-    restWithAuthMock.mockResolvedValueOnce({
-      data: mockWorkflows[1],
-    });
+    restWithAuthMock.mockResolvedValueOnce(mockWorkflows[1]);
 
     // when
     const result = await fetchWorkflows(workflowId, runIds);
