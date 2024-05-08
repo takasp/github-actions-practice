@@ -12,11 +12,7 @@
     "fmt": "biome format .",
     "fmt:fix": "biome format --write .",
     "lint": "biome lint .",
-    "lint:fix": "biome check --apply .",
-    "prepare": "cd $(git rev-parse --show-toplevel) && husky .github/workflows/scripts/github-interactions/.husky"
-  },
-  "lint-staged": {
-    "*.js": ["biome format --write", "biome check --apply", "vitest run"]
+    "lint:fix": "biome check --apply ."
   },
   "keywords": [],
   "author": "",
@@ -27,8 +23,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.6.3",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.2",
     "vitest": "^1.4.0"
   }
 }

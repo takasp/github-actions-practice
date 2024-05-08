@@ -1,2 +1,0 @@
-cd .github/workflows/scripts/github-interactions
-npx lint-staged
