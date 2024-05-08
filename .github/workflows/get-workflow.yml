@@ -33,18 +33,17 @@ jobs:
       - name: Get Workflow run ids by workflow_dispatch with run_ids # ワークフロー実行でワークフロー実行番号が指定された場合はその番号を取得する
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_ids
         run: |
-          echo "RUN_IDS=${{ github.event.inputs.run_ids || '' }}" >> $GITHUB_ENV
+          echo "RUN_IDS=${{ github.event.inputs.run_ids || '-1' }}" >> $GITHUB_ENV
       - name: Get Workflow run ids by workflow_run # ワークフローが実行された時は該当のワークフロー実行番号を取得する
         if: github.event_name == 'workflow_run'
         run: |
-          echo "RUN_IDS=${{ github.payload.workflow_run.id || '' }}" >> $GITHUB_ENV
+          echo "RUN_IDS=${{ github.event.workflow_run.id || '-1' }}" >> $GITHUB_ENV
       - name: echo vars
         run: |
-          echo github: "${{ toJson(github) }}"
           echo github.event_name: "${{ toJson(github.event_name) }}"
           echo github.event.inputs.run_ids: "${{ toJson(github.event.inputs.run_ids) }}"
           echo github.payload: "${{ toJson(github.payload) }}"
-          echo github.payload.workflow_run.id: "${{ toJson(github.payload.workflow_run.id) }}"
+          echo github.event.workflow_run.id: "${{ toJson(github.event.workflow_run.id) }}"
 
       - name: Set repository owner and name as env
         run: |
