@@ -32,12 +32,10 @@ jobs:
 
       - name: Get Workflow run ids by workflow_dispatch with run_ids # ワークフロー実行でワークフロー実行番号が指定された場合はその番号を取得する
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_ids
-        run: |
-          echo "RUN_IDS=${{ github.event.inputs.run_ids || '-1' }}" >> $GITHUB_ENV
+        run: echo "RUN_IDS=${{ github.event.inputs.run_ids || '-1' }}" >> $GITHUB_ENV
       - name: Get Workflow run ids by workflow_run # ワークフローがトリガーされた時は該当のトリガー元のワークフロー実行番号を取得する
         if: github.event_name == 'workflow_run'
-        run: |
-          echo "RUN_IDS=${{ github.event.workflow_run.id || '-1' }}" >> $GITHUB_ENV
+        run: echo "RUN_IDS=${{ github.event.workflow_run.id || '-1' }}" >> $GITHUB_ENV
       - name: echo input RUN_IDS　
         run: echo $RUN_IDS
 
