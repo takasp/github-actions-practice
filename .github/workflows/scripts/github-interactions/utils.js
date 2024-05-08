@@ -7,8 +7,6 @@ const octokit = new Octokit({ auth: githubToken });
 const restWithAuth = async (method, params) => {
   try {
     const response = await octokit.rest.actions[method](params);
-    console.log("method:", method);
-    console.log("response:", JSON.stringify(response));
     return response.data;
   } catch (error) {
     console.error(`Error calling ${method}:`, error);
