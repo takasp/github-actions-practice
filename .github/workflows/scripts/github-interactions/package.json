@@ -1,0 +1,34 @@
+{
+  "name": "github-interactions",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "get-pull-request.js",
+  "scripts": {
+    "start:pull-request": "node get-pull-request.js run",
+    "start:workflow": "node get-workflow.js run",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "fmt": "biome format .",
+    "fmt:fix": "biome format --write .",
+    "lint": "biome lint .",
+    "lint:fix": "biome check --apply .",
+    "prepare": "cd $(git rev-parse --show-toplevel) && husky .github/workflows/scripts/github-interactions/.husky"
+  },
+  "lint-staged": {
+    "*.js": ["biome format --write", "biome check --apply", "vitest run"]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/graphql": "^8.0.1",
+    "@octokit/rest": "^20.0.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.6.3",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "vitest": "^1.4.0"
+  }
+}
