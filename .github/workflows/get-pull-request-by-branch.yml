@@ -30,15 +30,13 @@ jobs:
 
       - name: Get PR numbers by workflow_dispatch with pr_numbers # ワークフロー実行でPR番号が指定された場合はその番号を取得する
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.pr_numbers
-        run: |
-          echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '-1' }}" >> $GITHUB_ENV
+        run: echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '-1' }}" >> $GITHUB_ENV
       - name: End job if PR is not merged
         if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
-        run: exit 0
+        run: echo "PR_NUMBERS='-1'" >> $GITHUB_ENV
       - name: Get PR numbers by pull_request # PRがマージされた時は該当のマージされたPRの番号を取得する
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "PR_NUMBERS=${{ github.event.pull_request.number || '-1' }}" >> $GITHUB_ENV
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        run: echo "PR_NUMBERS=${{ github.event.pull_request.number || '-1' }}" >> $GITHUB_ENV
       - name: echo input PR_NUMBERS　
         run: echo $PR_NUMBERS
 
@@ -48,6 +46,7 @@ jobs:
           echo "GITHUB_REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
 
       - name: Run get-pull-requests
+        if: env.PR_NUMBERS != '-1'
         run: npm run start:pull-request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
