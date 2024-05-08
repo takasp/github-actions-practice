@@ -42,6 +42,8 @@ jobs:
           echo github.event.inputs.pr_numbers: "${{ toJson(github.event.inputs.pr_numbers) }}"
           echo github.event.pull_request.merged: "${{ toJson(github.event.pull_request.merged) }}"
           echo github.event.pull_request.number: "${{ toJson(github.event.pull_request.number) }}"
+      - name: echo env PR_NUMBERS　
+        run: echo $PR_NUMBERS
 
       - name: Set repository owner and name as env
         run: |
