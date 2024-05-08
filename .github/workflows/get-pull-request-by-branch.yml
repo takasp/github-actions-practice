@@ -35,7 +35,7 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.pull_request.merged == false
         run: echo "PR_NUMBERS='-1'" >> $GITHUB_ENV
       - name: Get PR numbers by pull_request # PRがマージされた時は該当のマージされたPRの番号を取得する
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         run: echo "PR_NUMBERS=${{ github.event.pull_request.number || '-1' }}" >> $GITHUB_ENV
       - name: echo input PR_NUMBERS　
         run: echo $PR_NUMBERS
