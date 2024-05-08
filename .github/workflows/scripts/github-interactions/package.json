@@ -6,7 +6,7 @@
   "main": "get-pull-request.js",
   "scripts": {
     "start:pull-request": "node get-pull-request.js run",
-    "start:workflow": "node get-workflow.js",
+    "start:workflow": "node get-workflow.js run",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "fmt": "biome format --write .",

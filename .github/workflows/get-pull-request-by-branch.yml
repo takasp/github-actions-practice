@@ -23,10 +23,26 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm install
+
+      - name: Get PR numbers by workflow_dispatch with pr_numbers # ワークフロー実行でPR番号が指定された場合はその番号を取得する
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.pr_numbers
+        run: |
+          echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '' }}" >> $GITHUB_ENV
+      - name: Get PR numbers by pull_request # PRがマージされた時は該当のPRの番号を取得する
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "PR_NUMBERS=${{ context.payload.pull_request.number || '' }}" >> $GITHUB_ENV
+      - name: echo vars
+        run: |
+          echo ${{ github.event.inputs.pr_numbers }}
+          echo ${{ github.event.pull_request.merged }}
+          echo ${{ github.payload }}
+          echo ${{ github.payload.pull_request.number }}
+          echo ${{ context.payload.pull_request.number }}
 
       - name: Set repository owner and name as env
         run: |
@@ -37,6 +53,5 @@ jobs:
         run: npm run start:pull-request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBERS: ${{ github.event.inputs.pr_numbers }}
           LEAD_TIME_URL: ${{ secrets.LEAD_TIME_URL }}
           NODE_OPTIONS: "--max_old_space_size=4096"

@@ -25,10 +25,25 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install dependencies
         run: npm install
+
+      - name: Get Workflow run ids by workflow_dispatch with run_ids # ワークフロー実行でワークフロー実行番号が指定された場合はその番号を取得する
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_ids
+        run: |
+          echo "RUN_IDS=${{ github.event.inputs.run_ids || '' }}" >> $GITHUB_ENV
+      - name: Get Workflow run ids by workflow_run # ワークフローが実行された時は該当のワークフロー実行番号を取得する
+        if: github.event_name == 'workflow_run'
+        run: |
+          echo "RUN_IDS=${{ context.payload.workflow_run.id || '' }}" >> $GITHUB_ENV
+      - name: echo vars
+        run: |
+          echo ${{ github.event.inputs.run_ids }}
+          echo ${{ github.payload }}
+          echo ${{ github.payload.workflow_run.id }}
+          echo ${{ context.payload.workflow_run.id }}
 
       - name: Set repository owner and name as env
         run: |
@@ -39,6 +54,5 @@ jobs:
         run: npm run start:workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EVENT_NAME: ${{ github.event_name }}
           RUN_IDS: ${{ github.event.inputs.run_ids }}
           DEPLOYMENT_FREQUENCY_URL: ${{ secrets.DEPLOYMENT_FREQUENCY_URL }}
