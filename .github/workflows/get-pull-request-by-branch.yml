@@ -31,19 +31,17 @@ jobs:
       - name: Get PR numbers by workflow_dispatch with pr_numbers # ワークフロー実行でPR番号が指定された場合はその番号を取得する
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.pr_numbers
         run: |
-          echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '' }}" >> $GITHUB_ENV
+          echo "PR_NUMBERS=${{ github.event.inputs.pr_numbers || '-1' }}" >> $GITHUB_ENV
       - name: Get PR numbers by pull_request # PRがマージされた時は該当のPRの番号を取得する
         if: github.event_name == 'pull_request'
         run: |
-          echo "PR_NUMBERS=${{ github.payload.pull_request.number || '' }}" >> $GITHUB_ENV
+          echo "PR_NUMBERS=${{ github.event.pull_request.number || '-1' }}" >> $GITHUB_ENV
       - name: echo vars
         run: |
-          echo github: "${{ toJson(github) }}"
           echo github.event_name: "${{ toJson(github.event_name) }}"
           echo github.event.inputs.pr_numbers: "${{ toJson(github.event.inputs.pr_numbers) }}"
           echo github.event.pull_request.merged: "${{ toJson(github.event.pull_request.merged) }}"
-          echo github.payload: "${{ toJson(github.payload) }}"
-          echo github.payload.pull_request.number: "${{ toJson(github.payload.pull_request.number) }}"
+          echo github.event.pull_request.number: "${{ toJson(github.event.pull_request.number) }}"
 
       - name: Set repository owner and name as env
         run: |
