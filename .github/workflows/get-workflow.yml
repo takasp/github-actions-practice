@@ -38,13 +38,7 @@ jobs:
         if: github.event_name == 'workflow_run'
         run: |
           echo "RUN_IDS=${{ github.event.workflow_run.id || '-1' }}" >> $GITHUB_ENV
-      - name: echo vars
-        run: |
-          echo github.event_name: "${{ toJson(github.event_name) }}"
-          echo github.event.inputs.run_ids: "${{ toJson(github.event.inputs.run_ids) }}"
-          echo github.payload: "${{ toJson(github.payload) }}"
-          echo github.event.workflow_run.id: "${{ toJson(github.event.workflow_run.id) }}"
-      - name: echo env RUN_IDS　
+      - name: echo input RUN_IDS　
         run: echo $RUN_IDS
 
       - name: Set repository owner and name as env

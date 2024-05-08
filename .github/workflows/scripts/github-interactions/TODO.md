@@ -9,7 +9,7 @@
 - [x] WorkFlowの全件取得
 - [x] WorkFlow番号をlist指定したものだけの一覧を取得
 - [x] テスト名の修正
-- [] contextの対応
-- [] workflowからのキック
+- [x] contextの対応
+- [x] workflowからのキック
 - [x] CIでテストを実行する
 - [] PRがマージされずにクローズされた時にどうなるかを検証する
