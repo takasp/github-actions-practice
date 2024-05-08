@@ -205,6 +205,7 @@ export const run = async () => {
   const inputPrNumbers = process.env.PR_NUMBERS;
   // TODO context.payload.pull_request.numberも対応が必要
   let prNumbers = [];
+  console.log("inputPrNumbers:", inputPrNumbers);
 
   if (inputPrNumbers) {
     if (!isCommaSeparatedNumbers(inputPrNumbers)) {

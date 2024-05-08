@@ -6,6 +6,7 @@ export const fetchWorkflows = async (workflowId, runIds) => {
 
   const allWorkflowRuns = [];
 
+  console.log("runIds:", runIds);
   if (runIds.length > 0) {
     const workflow_runs = await Promise.all(
       runIds.map(async (runId) => {
@@ -40,6 +41,7 @@ export const fetchWorkflows = async (workflowId, runIds) => {
       page++;
     }
   }
+  console.log("allWorkflowRuns:", JSON.stringify(allWorkflowRuns));
   return allWorkflowRuns;
 };
 
@@ -102,6 +104,7 @@ export const run = async () => {
   // TODO context.payload.workflow_run.idの対応も必要
   const workflowId = "hadolint.yml"; // IDではなく、workflowファイル名も指定できる
   const inputRunIds = process.env.RUN_IDS;
+  console.log("inputRunIds:", inputRunIds);
 
   let runIds = [];
 
@@ -114,7 +117,6 @@ export const run = async () => {
     runIds = inputRunIds
       .split(",")
       .map((num) => Number.parseInt(num.trim(), 10));
-    runIds.map((runId) => console.log(runId));
   }
 
   try {
