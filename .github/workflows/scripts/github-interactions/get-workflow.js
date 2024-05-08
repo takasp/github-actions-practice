@@ -56,6 +56,11 @@ export const processWorkflowRuns = async (allWorkflowRuns) => {
   if (deploymentFrequencyRawList.length === 0) {
     throw new Error("No Workflows found");
   }
+  console.info(
+    "deploymentFrequencyRawList:",
+    deploymentFrequencyRawList.length,
+    "件",
+  );
   return deploymentFrequencyRawList;
 };
 
@@ -112,6 +117,7 @@ export const run = async () => {
     runIds = inputRunIds
       .split(",")
       .map((num) => Number.parseInt(num.trim(), 10));
+    console.info("inputRunIds:", inputRunIds);
   }
 
   try {
