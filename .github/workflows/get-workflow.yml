@@ -34,7 +34,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_ids
         run: |
           echo "RUN_IDS=${{ github.event.inputs.run_ids || '-1' }}" >> $GITHUB_ENV
-      - name: Get Workflow run ids by workflow_run # ワークフローが実行された時は該当のワークフロー実行番号を取得する
+      - name: Get Workflow run ids by workflow_run # ワークフローがトリガーされた時は該当のトリガー元のワークフロー実行番号を取得する
         if: github.event_name == 'workflow_run'
         run: |
           echo "RUN_IDS=${{ github.event.workflow_run.id || '-1' }}" >> $GITHUB_ENV
@@ -56,5 +56,4 @@ jobs:
         run: npm run start:workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_IDS: ${{ github.event.inputs.run_ids }}
           DEPLOYMENT_FREQUENCY_URL: ${{ secrets.DEPLOYMENT_FREQUENCY_URL }}
