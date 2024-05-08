@@ -40,11 +40,11 @@ jobs:
           echo "RUN_IDS=${{ github.payload.workflow_run.id || '' }}" >> $GITHUB_ENV
       - name: echo vars
         run: |
-          echo github: ${{ toJson(github) }}
-          echo github.event_name: ${{ toJson(github.event_name) }}
-          echo github.event.inputs.run_ids: ${{ toJson(github.event.inputs.run_ids) }}
-          echo github.payload: ${{ toJson(github.payload) }}
-          echo github.payload.workflow_run.id: ${{ toJson(github.payload.workflow_run.id) }}
+          echo github: "${{ toJson(github) }}"
+          echo github.event_name: "${{ toJson(github.event_name) }}"
+          echo github.event.inputs.run_ids: "${{ toJson(github.event.inputs.run_ids) }}"
+          echo github.payload: "${{ toJson(github.payload) }}"
+          echo github.payload.workflow_run.id: "${{ toJson(github.payload.workflow_run.id) }}"
 
       - name: Set repository owner and name as env
         run: |
