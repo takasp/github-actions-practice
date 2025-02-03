@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: echo workflow_run_all
-        run: echo "${{ toJson(github.event.workflow_run) }}"
+        run: echo "${{ toJson(github.event.workflow_run.display_title) }}"
   get_workflow_info:
-    if: "!contains(github.event.workflow_run.name, 'lint')"
+    if: "!contains(github.event.workflow_run.display_title, 'lint')"
     runs-on: ubuntu-latest
     environment: GAS_URL
     defaults:
