@@ -12,11 +12,11 @@ on:
         required: false
 
 jobs:
-  echo-run-name:
+  echo-workflow_run_all:
     runs-on: ubuntu-latest
     steps:
-      - name: echo workflow_run.name
-        run: echo ${{ github.event.workflow_run.name }}
+      - name: echo workflow_run_all
+        run: echo ${{ toJson(github.event.workflow_run) }}
   get_workflow_info:
     if: "!contains(github.event.workflow_run.name, 'lint')"
     runs-on: ubuntu-latest
